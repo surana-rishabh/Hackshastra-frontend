@@ -10,17 +10,19 @@ const buttonVariants = cva(
     variants: {
       variant: {
         primary:
-          'bg-[#0DA5F0] text-[#FFFFFF] font-semibold hover:bg-[#0284C7] hover:shadow-[0_4px_15px_rgba(13,165,240,0.35)] border border-[#0DA5F0]',
+          'bg-[#0DA5F0] text-[#FFFFFF] font-semibold hover:bg-[#0284C7] hover:shadow-[0_4px_15px_rgba(13,165,240,0.35)] hover:-translate-y-0.5 border border-[#0DA5F0]',
+        gradient:
+          'bg-gradient-to-r from-[#0DA5F0] to-[#1D4ED8] text-[#FFFFFF] font-semibold hover:opacity-95 hover:shadow-[0_6px_20px_rgba(13,165,240,0.4)] hover:-translate-y-0.5 border border-[#0DA5F0]/50',
         secondary:
-          'bg-[#F8FAFC] text-[#090D12] border border-[#E2E8F0] hover:border-[#0DA5F0] hover:bg-[#FFFFFF] hover:text-[#0DA5F0] shadow-sm',
+          'bg-[#F8FAFC] text-[#090D12] border border-[#E2E8F0] hover:border-[#0DA5F0] hover:bg-[#FFFFFF] hover:text-[#0DA5F0] hover:-translate-y-0.5 shadow-xs',
         outline:
-          'border border-[#E2E8F0] bg-transparent text-[#090D12] hover:border-[#0DA5F0] hover:text-[#0DA5F0] hover:bg-[#0DA5F0]/5',
+          'border border-[#E2E8F0] bg-transparent text-[#090D12] hover:border-[#0DA5F0] hover:text-[#0DA5F0] hover:bg-[#0DA5F0]/5 hover:-translate-y-0.5',
         bracket:
           'font-mono text-xs tracking-wider text-[#64748B] hover:text-[#0DA5F0] bg-transparent border-none px-2 py-1',
         ghost:
           'text-[#334155] hover:text-[#090D12] hover:bg-[#F1F5F9] border-transparent',
         glow:
-          'bg-[#090D12] text-[#FFFFFF] font-semibold hover:bg-[#0DA5F0] hover:shadow-[0_4px_20px_rgba(13,165,240,0.4)] border border-[#090D12]',
+          'bg-[#090D12] text-[#FFFFFF] font-semibold hover:bg-[#0DA5F0] hover:shadow-[0_4px_20px_rgba(13,165,240,0.4)] hover:-translate-y-0.5 border border-[#090D12]',
       },
       size: {
         default: 'h-10 px-5 py-2 rounded-[2px]',

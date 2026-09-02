@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
+import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { HomePage } from '@/pages/HomePage';
 import { AboutPage } from '@/pages/AboutPage';
 import { EventsPage } from '@/pages/EventsPage';
@@ -13,21 +14,23 @@ import { NotFoundPage } from '@/pages/NotFoundPage';
 
 export const App: React.FC = () => {
   return (
-    <BrowserRouter>
-      <Layout>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/about" element={<AboutPage />} />
-          <Route path="/events" element={<EventsPage />} />
-          <Route path="/gallery" element={<GalleryPage />} />
-          <Route path="/team" element={<TeamPage />} />
-          <Route path="/contact" element={<ContactPage />} />
-          <Route path="/join" element={<JoinPage />} />
-          <Route path="/texpo-register" element={<TexpoRegisterPage />} />
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
-      </Layout>
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <Layout>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/events" element={<EventsPage />} />
+            <Route path="/gallery" element={<GalleryPage />} />
+            <Route path="/team" element={<TeamPage />} />
+            <Route path="/contact" element={<ContactPage />} />
+            <Route path="/join" element={<JoinPage />} />
+            <Route path="/texpo-register" element={<TexpoRegisterPage />} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </Layout>
+      </BrowserRouter>
+    </ErrorBoundary>
   );
 };
 

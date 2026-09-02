@@ -87,7 +87,7 @@ export const HeroSection: React.FC = () => {
             <FadeUp delay={0.5}>
               <div className="mt-8 flex flex-wrap items-center gap-4">
                 <Link to="/join">
-                  <Button variant="primary" size="lg" className="font-mono text-xs tracking-wider gap-2">
+                  <Button variant="gradient" size="lg" className="font-mono text-xs tracking-wider gap-2">
                     <span>JOIN THE COMMUNITY</span>
                     <ArrowUpRight className="h-4 w-4" />
                   </Button>

@@ -1,13 +1,16 @@
 import * as React from 'react';
 import { siteData } from '@/data/siteData';
+import { useEvents } from '@/hooks/useEvents';
 import { FadeUp } from '@/components/ui/MotionWrapper';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { TechBorderCard } from '@/components/ui/TechBorderCard';
-import { Calendar, MapPin, ArrowUpRight, CheckCircle2 } from 'lucide-react';
+import { Calendar, MapPin, ArrowUpRight, CheckCircle2, Radio } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export const EventsPage: React.FC = () => {
+  const { upcomingEvents, completedEvents, isLive } = useEvents();
+
   return (
     <div className="py-12 md:py-20 bg-[#FFFFFF]">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -16,6 +19,11 @@ export const EventsPage: React.FC = () => {
             <span>HACKSHASTRA LINEUP</span>
             <span>•</span>
             <span>[ CALENDAR & ARCHIVE ]</span>
+            {isLive && (
+              <span className="ml-2 inline-flex items-center gap-1 text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded text-[10px]">
+                <Radio className="h-3 w-3 animate-pulse" /> LIVE SYNC
+              </span>
+            )}
           </div>
           <h1 className="font-heading text-4xl sm:text-6xl font-bold tracking-tight text-[#090D12]">
             All Events & Hackathons
@@ -33,7 +41,7 @@ export const EventsPage: React.FC = () => {
           </FadeUp>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {siteData.events.upcoming.map((ev, i) => (
+            {upcomingEvents.map((ev, i) => (
               <FadeUp key={ev.title} delay={i * 0.15}>
                 <TechBorderCard active={i === 0} className="h-full flex flex-col justify-between">
                   <div>
@@ -87,7 +95,7 @@ export const EventsPage: React.FC = () => {
           </FadeUp>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {siteData.events.completed.map((ev, i) => (
+            {completedEvents.map((ev, i) => (
               <FadeUp key={ev.title} delay={i * 0.1}>
                 <div className="rounded-[2px] border border-[#E2E8F0] bg-[#F8FAFC] p-6 h-full flex flex-col justify-between hover:border-[#0DA5F0] hover:shadow-sm transition-all">
                   <div>

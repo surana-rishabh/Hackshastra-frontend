@@ -4,6 +4,8 @@ import { FadeUp } from '@/components/ui/MotionWrapper';
 import { Button } from '@/components/ui/Button';
 import { Mail, Copy, Check, Send, ExternalLink } from 'lucide-react';
 
+import { api } from '@/lib/api';
+
 export const ContactPage: React.FC = () => {
   const [formData, setFormData] = React.useState({
     name: '',
@@ -13,6 +15,7 @@ export const ContactPage: React.FC = () => {
   });
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [submitted, setSubmitted] = React.useState(false);
+  const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
   const [copiedField, setCopiedField] = React.useState<'email' | 'address' | null>(null);
 
   const handleCopy = (text: string, field: 'email' | 'address') => {
@@ -23,6 +26,7 @@ export const ContactPage: React.FC = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    if (errorMessage) setErrorMessage(null);
   };
 
   const triggerMailtoFallback = () => {
@@ -34,31 +38,48 @@ export const ContactPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setErrorMessage(null);
 
     try {
-      const response = await fetch('https://api.web3forms.com/submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          access_key: 'b1d033c4-4b57-41ab-85f8-80f074d0dbd9',
-          email_to: siteData.siteInfo.contactEmail,
-          name: formData.name,
-          email: formData.email,
-          subject: `[HackShastra Contact] ${formData.subject}`,
-          message: formData.message,
-          from_name: `${formData.name} (HackShastra Website)`,
-        }),
+      const result = await api.post('/api/contact', {
+        name: formData.name,
+        email: formData.email,
+        subject: formData.subject,
+        message: formData.message,
       });
 
-      const result = await response.json();
-      if (result.success || response.ok) {
+      if (result.success) {
         setSubmitted(true);
         setFormData({ name: '', email: '', subject: '', message: '' });
       } else {
+        throw new Error(result.message || 'Failed to submit message');
+      }
+    } catch (err: any) {
+      console.warn('Backend API submit error, trying web3forms/mailto fallback:', err);
+      try {
+        const response = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            access_key: 'b1d033c4-4b57-41ab-85f8-80f074d0dbd9',
+            email_to: siteData.siteInfo.contactEmail,
+            name: formData.name,
+            email: formData.email,
+            subject: `[HackShastra Contact] ${formData.subject}`,
+            message: formData.message,
+            from_name: `${formData.name} (HackShastra Website)`,
+          }),
+        });
+        const resJson = await response.json();
+        if (resJson.success || response.ok) {
+          setSubmitted(true);
+          setFormData({ name: '', email: '', subject: '', message: '' });
+        } else {
+          triggerMailtoFallback();
+        }
+      } catch {
         triggerMailtoFallback();
       }
-    } catch {
-      triggerMailtoFallback();
     } finally {
       setIsSubmitting(false);
     }

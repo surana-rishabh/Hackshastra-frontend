@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 
 export const Navbar: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+  const [scrolled, setScrolled] = React.useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -17,6 +18,14 @@ export const Navbar: React.FC = () => {
       navigate('/');
     }
   };
+
+  React.useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   React.useEffect(() => {
     if (mobileMenuOpen) {
@@ -46,7 +55,14 @@ export const Navbar: React.FC = () => {
   const isHome = location.pathname === '/';
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 border-b border-[#E2E8F0] bg-[#FFFFFF]/90 backdrop-blur-md transition-all">
+    <header
+      className={cn(
+        'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
+        scrolled
+          ? 'border-b border-[#CBD5E1]/80 bg-[#FFFFFF]/95 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] backdrop-blur-md'
+          : 'border-b border-[#E2E8F0] bg-[#FFFFFF]/80 backdrop-blur-sm'
+      )}
+    >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-4">
           {!isHome && (
