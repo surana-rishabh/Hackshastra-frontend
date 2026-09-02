@@ -1,18 +1,12 @@
 import * as React from 'react';
 import { siteData } from '@/data/siteData';
+import { useTeam } from '@/hooks/useTeam';
 import { FadeUp } from '@/components/ui/MotionWrapper';
 import { TeamCard } from '@/components/ui/TeamCard';
+import { Radio } from 'lucide-react';
 
 export const TeamPage: React.FC = () => {
-  const sections = [
-    { title: 'Club Advisory', data: siteData.team.clubAdvisory, dept: 'Advisory' },
-    { title: 'Community Leadership', data: siteData.team.leadership, dept: 'Leadership' },
-    { title: 'Technical Core Team', data: siteData.team.technicalTeam, dept: 'Technical Core' },
-    { title: 'Design & Social Media Team', data: siteData.team.designTeam, dept: 'Design & Social Media' },
-    { title: 'Events & Management Team', data: siteData.team.eventsTeam, dept: 'Events & Management' },
-    { title: 'Internal Affairs & Logistics Team', data: siteData.team.internalAffairsLogisticsTeam, dept: 'Internal Affairs' },
-    { title: 'Social Media & PR Team', data: siteData.team.socialMediaPrTeam, dept: 'PR & Outreach' },
-  ];
+  const { teamSections, isLive } = useTeam();
 
   return (
     <div className="py-12 md:py-20 bg-[#FFFFFF]">
@@ -22,6 +16,11 @@ export const TeamPage: React.FC = () => {
             <span>HACKSHASTRA SRM-AP</span>
             <span>•</span>
             <span>[ COMMUNITY DIRECTORY ]</span>
+            {isLive && (
+              <span className="ml-2 inline-flex items-center gap-1 text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded text-[10px]">
+                <Radio className="h-3 w-3 animate-pulse" /> LIVE DIRECTORY
+              </span>
+            )}
           </div>
           <h1 className="font-heading text-4xl sm:text-6xl font-bold tracking-tight text-[#090D12]">
             Meet the Builders & Leaders
@@ -32,7 +31,7 @@ export const TeamPage: React.FC = () => {
         </FadeUp>
 
         <div className="mt-16 space-y-20">
-          {sections.map((sec) => {
+          {teamSections.map((sec) => {
             if (!sec.data || sec.data.length === 0) return null;
             return (
               <div key={sec.title} className="pt-8 border-t border-[#E2E8F0]">
@@ -48,7 +47,7 @@ export const TeamPage: React.FC = () => {
                 </FadeUp>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {sec.data.map((member, mIdx) => (
+                  {sec.data.map((member: any, mIdx: number) => (
                     <FadeUp key={member.name} delay={mIdx * 0.05}>
                       <TeamCard
                         name={member.name}

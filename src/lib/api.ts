@@ -1,3 +1,5 @@
+import { authStorage } from './auth';
+
 export interface ApiResponse<T = any> {
   success: boolean;
   message?: string;
@@ -10,11 +12,16 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 async function request<T = any>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
   const url = endpoint.startsWith('http') ? endpoint : `${BASE_URL}${endpoint}`;
   
-  const headers = {
+  const token = authStorage.getToken();
+  const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     Accept: 'application/json',
-    ...(options.headers || {}),
+    ...(options.headers as Record<string, string> || {}),
   };
+
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
 
   try {
     const res = await fetch(url, {
