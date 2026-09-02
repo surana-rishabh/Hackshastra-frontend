@@ -27,10 +27,15 @@ export function useEvents() {
     async function fetchEvents() {
       try {
         const res = await api.get('/api/events');
-        if (res.success && Array.isArray(res.data) && res.data.length > 0 && isMounted) {
-          const apiEvents = res.data;
-          const up = apiEvents.filter((e: any) => e.status === 'upcoming' || e.status === 'active');
-          const comp = apiEvents.filter((e: any) => e.status === 'completed');
+        const eventList = Array.isArray(res.data)
+          ? res.data
+          : Array.isArray(res.data?.events)
+          ? res.data.events
+          : null;
+
+        if (res.success && eventList && eventList.length > 0 && isMounted) {
+          const up = eventList.filter((e: any) => e.status === 'upcoming' || e.status === 'active' || e.status === 'PUBLISHED');
+          const comp = eventList.filter((e: any) => e.status === 'completed' || e.status === 'COMPLETED');
           
           if (up.length > 0) setUpcomingEvents(up);
           if (comp.length > 0) setCompletedEvents(comp);
