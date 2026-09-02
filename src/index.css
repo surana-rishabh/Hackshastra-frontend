@@ -1,0 +1,105 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    /* 8-COLOR WHITE-BASE MASTER PALETTE */
+    --color-1-white: #FFFFFF;
+    --color-2-cyan: #0DA5F0;
+    --color-3-ink: #090D12;
+    --color-4-surface-soft: #F8FAFC;
+    --color-5-cyber-azure: #0284C7;
+    --color-6-cobalt-indigo: #1D4ED8;
+    --color-7-muted-slate: #64748B;
+    --color-8-border-line: #E2E8F0;
+
+    /* Semantic mappings */
+    --color-bg-base: var(--color-1-white);
+    --color-bg-surface: var(--color-4-surface-soft);
+    --color-bg-surface-2: #F1F5F9;
+
+    --color-brand-primary: var(--color-2-cyan);
+    --color-brand-highlight: var(--color-5-cyber-azure);
+    --color-brand-deep: var(--color-6-cobalt-indigo);
+
+    --color-text-primary: var(--color-3-ink);
+    --color-text-secondary: #334155;
+    --color-text-muted: var(--color-7-muted-slate);
+    --color-text-disabled: #94A3B8;
+
+    --color-border: var(--color-8-border-line);
+    --color-border-active: var(--color-2-cyan);
+
+    --font-heading: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  * {
+    border-color: var(--color-border);
+  }
+
+  html {
+    background-color: var(--color-bg-base);
+    color: var(--color-text-primary);
+    font-family: var(--font-body);
+  }
+
+  body {
+    overflow-x: hidden;
+    min-height: 100dvh;
+    background-color: var(--color-bg-base);
+    color: var(--color-text-primary);
+  }
+}
+
+/* Light Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #F8FAFC;
+}
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #0DA5F0;
+}
+
+/* Typography Utility Classes */
+.font-heading {
+  font-family: var(--font-heading);
+}
+.font-body {
+  font-family: var(--font-body);
+}
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+/* Glow & Atmospheric Effects on White */
+.glow-cyan-subtle {
+  box-shadow: 0 4px 20px -2px rgba(13, 165, 240, 0.12);
+}
+
+.glow-cyan-active {
+  box-shadow: 0 8px 30px rgba(13, 165, 240, 0.22);
+}
+
+.bg-radial-atmosphere {
+  background: radial-gradient(circle at 50% -10%, rgba(13, 165, 240, 0.08) 0%, transparent 60%);
+}
+
+.bg-grid-pattern {
+  background-size: 36px 36px;
+  background-image: 
+    linear-gradient(to right, rgba(226, 232, 240, 0.8) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(226, 232, 240, 0.8) 1px, transparent 1px);
+}
+
+/* Image alignment override for specific team photo */
+.team-member-img[src*="20260208_172130"] {
+  object-position: center 20% !important;
+}
