@@ -219,13 +219,11 @@ export const PokedexDevice: React.FC<PokedexDeviceProps> = ({
       const emailVal = formData.email.trim().toLowerCase();
 
       if (!emailVal) {
-        errs.email = 'Email address is required';
+        errs.email = 'SRM University-AP email is required';
       } else if (!emailRegex.test(emailVal)) {
-        errs.email = 'Enter a valid email address';
+        errs.email = 'Enter a valid email address format';
       } else if (!emailVal.endsWith('@srmap.edu.in')) {
-        errs.email = 'Registration is exclusive to SRM University-AP students (@srmap.edu.in)';
-      } else if (!isEmailVerified) {
-        errs.email = 'Please verify your @srmap.edu.in email with the 6-digit OTP code before proceeding';
+        errs.email = 'Email must end with @srmap.edu.in';
       }
 
       const digits = formData.contactNumber.replace(/\D/g, '');

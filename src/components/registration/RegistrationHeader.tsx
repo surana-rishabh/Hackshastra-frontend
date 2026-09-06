@@ -12,7 +12,7 @@ export const RegistrationHeader: React.FC<RegistrationHeaderProps> = ({
   className,
 }) => {
   return (
-    <header className={cn('text-center space-y-1.5 select-none', className)}>
+    <header className={cn('text-center space-y-2 select-none mb-2 sm:mb-3', className)}>
       {/* Top telemetry tag */}
       <div className="flex items-center justify-center gap-2 font-mono text-xs uppercase text-amber-300 font-bold">
         <span>POKÉMON TOURNAMENT REGISTRATION</span>

@@ -5,6 +5,7 @@ export interface PokemonOption {
   typeColor: string;
   description: string;
   imageKey: string;
+  cleanImageKey?: string;
   stats: {
     hp: number;
     attack: number;
@@ -61,7 +62,8 @@ export const POKEMON_OPTIONS: PokemonOption[] = [
     typeColor: '#0DA5F0',
     description: 'Tiny Turtle Pokémon • Hydro Cannon ready',
     imageKey: 'squirtle-card.png',
-    stats: { hp: 44, attack: 48, defense: 65 },
+    cleanImageKey: 'squirtle-clean-card.png',
+    stats: { hp: 60, attack: 48, defense: 65 },
   },
   {
     id: 'charmander',
@@ -70,7 +72,8 @@ export const POKEMON_OPTIONS: PokemonOption[] = [
     typeColor: '#F97316',
     description: 'Lizard Pokémon • Flamethrower ready',
     imageKey: 'charmander-card.png',
-    stats: { hp: 39, attack: 52, defense: 43 },
+    cleanImageKey: 'charmander-clean-card.png',
+    stats: { hp: 70, attack: 52, defense: 43 },
   },
   {
     id: 'bulbasaur',
@@ -79,7 +82,8 @@ export const POKEMON_OPTIONS: PokemonOption[] = [
     typeColor: '#65A30D',
     description: 'Seed Pokémon • Solar Beam ready',
     imageKey: 'bulbasaur-card.png',
-    stats: { hp: 45, attack: 49, defense: 49 },
+    cleanImageKey: 'bulbasaur-clean-card.png',
+    stats: { hp: 70, attack: 49, defense: 49 },
   },
 ];
 

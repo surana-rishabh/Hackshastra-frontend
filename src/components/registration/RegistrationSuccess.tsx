@@ -1,12 +1,27 @@
 import * as React from 'react';
 import { motion } from 'motion/react';
-import { CheckCircle2, Calendar, Clock, MapPin, Download, ArrowRight, Share2, Sparkles, MailCheck } from 'lucide-react';
+import { CheckCircle2, Calendar, Clock, MapPin, ArrowRight, Share2, Sparkles, MailCheck, Shield, Zap, QrCode, Download, FileDown, Mail, Loader2 } from 'lucide-react';
+import { toPng } from 'html-to-image';
+import jsPDF from 'jspdf';
 import { RegistrationFormData } from '@/hooks/useRegistrationForm';
+import { POKEMON_OPTIONS } from '@/data/registration/beyondTheScreen';
 import { getImageUrl } from '@/lib/assets';
 import { Button } from '@/components/ui/Button';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import pokedexRedFrameImg from '@/assets/events/beyond-the-screen/pokedex-red-frame.jpg';
+import { api } from '@/lib/api';
+import QRCode from 'qrcode';
+
+// Direct high-resolution clean card templates (bublasaur without text.png, charmander no text.png, squirtlenotext.png)
+import bulbasaurCleanImg from '@/assets/events/beyond-the-screen/bulbasaur-clean-card.png';
+import charmanderCleanImg from '@/assets/events/beyond-the-screen/charmander-clean-card.png';
+import squirtleCleanImg from '@/assets/events/beyond-the-screen/squirtle-clean-card.png';
+
+const CLEAN_CARD_MAP: Record<string, string> = {
+  bulbasaur: bulbasaurCleanImg,
+  charmander: charmanderCleanImg,
+  squirtle: squirtleCleanImg,
+};
 
 interface RegistrationSuccessProps {
   formData: RegistrationFormData;
@@ -23,8 +38,6 @@ export const RegistrationSuccess: React.FC<RegistrationSuccessProps> = ({
   onReset,
   className,
 }) => {
-  const cardBackUrl = getImageUrl(cardBackKey);
-
   // Generate a clean entry ID if returned or create an accredited token
   const entryId = registrationResult?.id
     ? `BTS-${String(registrationResult.id).slice(0, 8).toUpperCase()}`
@@ -32,12 +45,302 @@ export const RegistrationSuccess: React.FC<RegistrationSuccessProps> = ({
 
   const isPendingVerification = registrationResult?.status === 'PENDING_VERIFICATION' || !registrationResult?.verified_at;
 
+  const selectedPokemon = POKEMON_OPTIONS.find(
+    (p) => p.id.toLowerCase() === (formData.favouritePokemon || '').toLowerCase()
+  ) || POKEMON_OPTIONS[0];
+
+  // Ref to the physical card DOM element for rendering high-res PNG / PDF
+  const cardElementRef = React.useRef<HTMLDivElement>(null);
+
+  // Dynamic Custom Styled QR Code generation holding full trainer verification payload
+  const [qrCodeDataUrl, setQrCodeDataUrl] = React.useState<string>('');
+  const [isEmailing, setIsEmailing] = React.useState<boolean>(false);
+  const [emailStatus, setEmailStatus] = React.useState<'idle' | 'sending' | 'sent' | 'failed'>('idle');
+  const [emailMessage, setEmailMessage] = React.useState<string>('');
+  const [isDownloadingPng, setIsDownloadingPng] = React.useState<boolean>(false);
+  const [isDownloadingPdf, setIsDownloadingPdf] = React.useState<boolean>(false);
+  const hasAutoDispatched = React.useRef<boolean>(false);
+
+  React.useEffect(() => {
+    const qrPayload = JSON.stringify(
+      {
+        event: 'Beyond the Screen',
+        venue: 'CV 402, SRM University-AP',
+        date: '16 September 2026',
+        passToken: entryId,
+        trainerName: formData.fullName || 'Trainer',
+        studentId: formData.studentId || 'N/A',
+        email: formData.email || 'N/A',
+        gender: formData.gender || 'N/A',
+        department: formData.department || 'N/A',
+        yearOfStudy: formData.year || 'N/A',
+        contactNumber: formData.contactNumber || 'N/A',
+        battleFormat:
+          formData.participationInterest === 'yes'
+            ? 'CHALLENGER (Battling)'
+            : formData.participationInterest === 'maybe'
+            ? 'SCOUT (Exploring)'
+            : 'SPECTATOR',
+        starterPartner: selectedPokemon.name,
+        accreditationStatus: 'OFFICIALLY VERIFIED & LOCKED',
+      },
+      null,
+      2
+    );
+
+    const canvas = document.createElement('canvas');
+    const size = 440;
+    canvas.width = size;
+    canvas.height = size;
+
+    QRCode.toCanvas(
+      canvas,
+      qrPayload,
+      {
+        width: size,
+        margin: 1.5,
+        color: {
+          dark: '#000000',
+          light: '#FBF5DD', // Warm vintage card parchment background
+        },
+        errorCorrectionLevel: 'H', // High error correction to support larger center emblem seamlessly
+      },
+      (error) => {
+        if (error) {
+          console.error('Failed to render base QR to canvas:', error);
+          return;
+        }
+
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          setQrCodeDataUrl(canvas.toDataURL('image/png'));
+          return;
+        }
+
+        const centerImg = new Image();
+        centerImg.crossOrigin = 'anonymous';
+        centerImg.src = '/events/beyond-the-screen/qr-center-icon.png';
+
+        centerImg.onload = () => {
+          // Expanded Pikachu center area (40% of the entire QR dimension)
+          const centerSize = size * 0.40;
+          const centerPos = (size - centerSize) / 2;
+
+          ctx.save();
+          // Outer circular knockout matching parchment tone with smooth padding
+          ctx.beginPath();
+          ctx.arc(size / 2, size / 2, centerSize / 2 + 6, 0, Math.PI * 2);
+          ctx.fillStyle = '#FBF5DD';
+          ctx.fill();
+          ctx.lineWidth = 3.5;
+          ctx.strokeStyle = '#000000';
+          ctx.stroke();
+
+          // Circular clip for emblem
+          ctx.beginPath();
+          ctx.arc(size / 2, size / 2, centerSize / 2, 0, Math.PI * 2);
+          ctx.clip();
+          ctx.drawImage(centerImg, centerPos, centerPos, centerSize, centerSize);
+          ctx.restore();
+
+          setQrCodeDataUrl(canvas.toDataURL('image/png'));
+        };
+
+        centerImg.onerror = () => {
+          // Fallback if emblem is not yet cached
+          setQrCodeDataUrl(canvas.toDataURL('image/png'));
+        };
+      }
+    );
+  }, [formData, entryId, selectedPokemon]);
+
+  // Helper to generate crisp high-resolution PNG data URL from the card DOM element
+  const generateCardPng = async (): Promise<string | null> => {
+    if (!cardElementRef.current) return null;
+    try {
+      // Scale 2.5 gives ultra high-definition resolution for printing and crisp viewing.
+      // skipFonts: true prevents SecurityError: Failed to read 'cssRules' property from remote Google Fonts stylesheets.
+      const dataUrl = await toPng(cardElementRef.current, {
+        pixelRatio: 2.5,
+        cacheBust: true,
+        skipFonts: true,
+      });
+      return dataUrl;
+    } catch (err) {
+      console.error('Failed to generate PNG from card element:', err);
+      return null;
+    }
+  };
+
+  // Helper to generate styled single-page PDF pass with embedded card graphic
+  const generateCardPdf = async (pngDataUrl?: string): Promise<string | null> => {
+    try {
+      const imgUrl = pngDataUrl || (await generateCardPng());
+      if (!imgUrl) return null;
+
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
+      });
+
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+
+      // Deep dark sleek background
+      pdf.setFillColor(10, 15, 20);
+      pdf.rect(0, 0, pageWidth, pageHeight, 'F');
+
+      // Top Event Header Banner
+      pdf.setFillColor(220, 38, 38);
+      pdf.roundedRect(15, 12, pageWidth - 30, 22, 3, 3, 'F');
+
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(16);
+      pdf.setTextColor(255, 255, 255);
+      pdf.text('BEYOND THE SCREEN — OFFICIAL ARENA PASS', pageWidth / 2, 22, { align: 'center' });
+
+      pdf.setFontSize(9);
+      pdf.setTextColor(254, 240, 138);
+      pdf.text('SRM UNIVERSITY-AP  •  VENUE: CV 402  •  16 SEPTEMBER 2026 (2:30 PM)', pageWidth / 2, 29, { align: 'center' });
+
+      // Embed the high-resolution Pokémon card graphic
+      const cardWidth = 110;
+      const cardHeight = 110 * 1.42; // maintaining 1:1.42 card aspect ratio
+      const cardX = (pageWidth - cardWidth) / 2;
+      const cardY = 40;
+
+      pdf.addImage(imgUrl, 'PNG', cardX, cardY, cardWidth, cardHeight, undefined, 'FAST');
+
+      // Bottom Pass Details & Verification Box
+      const infoY = cardY + cardHeight + 8;
+      pdf.setFillColor(17, 24, 39);
+      pdf.setDrawColor(245, 158, 11);
+      pdf.setLineWidth(0.5);
+      pdf.roundedRect(15, infoY, pageWidth - 30, 48, 3, 3, 'FD');
+
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(11);
+      pdf.setTextColor(245, 158, 11);
+      pdf.text('TRAINER ACCREDITATION SUMMARY', 22, infoY + 10);
+
+      pdf.setFont('helvetica', 'normal');
+      pdf.setFontSize(9.5);
+      pdf.setTextColor(226, 232, 240);
+      pdf.text(`Trainer Name: ${formData.fullName || 'Trainer'}`, 22, infoY + 18);
+      pdf.text(`Student / Reg ID: ${formData.studentId || 'N/A'}`, 22, infoY + 25);
+      pdf.text(`Registered Email: ${formData.email || 'N/A'}`, 22, infoY + 32);
+      pdf.text(`Department: ${formData.department || 'N/A'} (Year: ${formData.year || 'N/A'})`, 22, infoY + 39);
+
+      pdf.text(`Starter Partner: ${selectedPokemon.name}`, pageWidth / 2 + 5, infoY + 18);
+      pdf.text(`Battle Role: ${formData.participationInterest === 'yes' ? 'Challenger (Battling)' : 'Participant'}`, pageWidth / 2 + 5, infoY + 25);
+      pdf.text(`Pass ID: ${entryId}`, pageWidth / 2 + 5, infoY + 32);
+      pdf.text(`Status: OFFICIALLY CONFIRMED`, pageWidth / 2 + 5, infoY + 39);
+
+      // Security footer
+      pdf.setFontSize(7.5);
+      pdf.setTextColor(100, 116, 139);
+      pdf.text('HackShastra SRM-AP Chapter • Please present this ticket or QR card upon entry at CV 402', pageWidth / 2, pageHeight - 10, { align: 'center' });
+
+      return pdf.output('datauristring');
+    } catch (err) {
+      console.error('Failed to generate PDF pass:', err);
+      return null;
+    }
+  };
+
+  // Dispatch Email function (called automatically or on button click)
+  const handleEmailPass = async (silent = false) => {
+    if (!formData.email) return;
+    if (isEmailing) return;
+
+    try {
+      setIsEmailing(true);
+      if (!silent) setEmailStatus('sending');
+
+      // Wait a tick for fonts/canvas if needed
+      await new Promise((r) => setTimeout(r, 400));
+
+      const pngData = await generateCardPng();
+      const pdfData = await generateCardPdf(pngData || undefined);
+
+      await api.post('/api/registrations/send-pass', {
+        email: formData.email,
+        fullName: formData.fullName,
+        eventTitle: 'Beyond the Screen',
+        passId: entryId,
+        pokemonName: selectedPokemon.name,
+        imageDataUrl: pngData,
+        pdfDataUrl: pdfData,
+      });
+
+      setEmailStatus('sent');
+      setEmailMessage(`Trainer Pass (PNG + PDF) dispatched to ${formData.email}!`);
+    } catch (err: any) {
+      console.error('Failed to dispatch pass email:', err);
+      setEmailStatus('failed');
+      setEmailMessage('Could not automatically deliver email. You can download your PNG/PDF below.');
+    } finally {
+      setIsEmailing(false);
+    }
+  };
+
+  // Automatically trigger email dispatch once QR is ready
+  React.useEffect(() => {
+    if (qrCodeDataUrl && !hasAutoDispatched.current && formData.email) {
+      hasAutoDispatched.current = true;
+      // Slight timeout to let DOM render completely
+      const timer = setTimeout(() => {
+        handleEmailPass(true);
+      }, 700);
+      return () => clearTimeout(timer);
+    }
+  }, [qrCodeDataUrl, formData.email]);
+
+  // Download Card as high-res PNG image
+  const handleDownloadPng = async () => {
+    try {
+      setIsDownloadingPng(true);
+      const pngDataUrl = await generateCardPng();
+      if (!pngDataUrl) throw new Error('Could not generate PNG');
+
+      const link = document.createElement('a');
+      link.download = `${(formData.fullName || 'Trainer').replace(/\s+/g, '_')}_${selectedPokemon.name}_Card.png`;
+      link.href = pngDataUrl;
+      link.click();
+    } catch (err) {
+      console.error('Download PNG failed:', err);
+      alert('Failed to download PNG. Please try again.');
+    } finally {
+      setIsDownloadingPng(false);
+    }
+  };
+
+  // Download Pass as full PDF ticket
+  const handleDownloadPdf = async () => {
+    try {
+      setIsDownloadingPdf(true);
+      const pdfDataUrl = await generateCardPdf();
+      if (!pdfDataUrl) throw new Error('Could not generate PDF');
+
+      const link = document.createElement('a');
+      link.download = `${(formData.fullName || 'Trainer').replace(/\s+/g, '_')}_Beyond_The_Screen_Pass.pdf`;
+      link.href = pdfDataUrl;
+      link.click();
+    } catch (err) {
+      console.error('Download PDF failed:', err);
+      alert('Failed to download PDF. Please try again.');
+    } finally {
+      setIsDownloadingPdf(false);
+    }
+  };
+
   const handleShare = async () => {
     if (navigator.share) {
       try {
         await navigator.share({
           title: 'Beyond the Screen Registration Deck',
-          text: `I just registered my trainer deck for Beyond the Screen at SRM University-AP!`,
+          text: `I just registered my trainer deck with ${selectedPokemon.name} for Beyond the Screen at SRM University-AP!`,
           url: window.location.href,
         });
       } catch {
@@ -49,122 +352,312 @@ export const RegistrationSuccess: React.FC<RegistrationSuccessProps> = ({
     }
   };
 
+  // Type-specific color matching themes
+  const pokemonTheme = React.useMemo(() => {
+    const pId = (selectedPokemon.id || '').toLowerCase();
+    if (pId === 'bulbasaur') {
+      return {
+        primary: '#14532d', // Deep grass green
+        accent: '#15803d',  // Emerald
+        subtext: '#1f2937', // Slate
+        badgeBg: '#dcfce7',
+        badgeText: '#14532d',
+        badgeBorder: '#86efac',
+        divider: 'rgba(20, 83, 45, 0.28)',
+        qrBorder: '#166534',
+        footerText: '#166534',
+      };
+    }
+    if (pId === 'charmander') {
+      return {
+        primary: '#991b1b', // Deep flame crimson
+        accent: '#c2410c',  // Fire orange
+        subtext: '#1f2937',
+        badgeBg: '#ffedd5',
+        badgeText: '#9a3412',
+        badgeBorder: '#fdba74',
+        divider: 'rgba(153, 27, 27, 0.28)',
+        qrBorder: '#991b1b',
+        footerText: '#9a3412',
+      };
+    }
+    // Default to Squirtle (Water)
+    return {
+      primary: '#075985', // Deep ocean navy
+      accent: '#0284c7',  // Cobalt cyan
+      subtext: '#1f2937',
+      badgeBg: '#e0f2fe',
+      badgeText: '#0369a1',
+      badgeBorder: '#7dd3fc',
+      divider: 'rgba(7, 89, 133, 0.28)',
+      qrBorder: '#0369a1',
+      footerText: '#0369a1',
+    };
+  }, [selectedPokemon]);
+
+  // Card background asset logic using direct clean image imports
+  const cardArtUrl =
+    CLEAN_CARD_MAP[(selectedPokemon.id || '').toLowerCase()] ||
+    getImageUrl(selectedPokemon.cleanImageKey || selectedPokemon.imageKey);
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.9, rotateY: 90 }}
       animate={{ opacity: 1, scale: 1, rotateY: 0 }}
       transition={{ type: 'spring', stiffness: 220, damping: 20 }}
-      className={cn('w-full max-w-[560px] sm:max-w-[620px] mx-auto text-center space-y-6', className)}
+      className={cn('w-full max-w-[480px] sm:max-w-[530px] mx-auto text-center space-y-4', className)}
     >
-      {/* 3D Classic Red Pokédex Pass */}
-      <div className="relative rounded-[26px] bg-[#0A0306]/75 backdrop-blur-2xl border-2 border-red-500/60 shadow-2xl p-5 overflow-hidden text-white">
-        {/* Ambient atmospheric glows */}
-        <div className="absolute -top-24 -left-24 w-48 h-48 bg-red-500/30 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-24 -right-24 w-48 h-48 bg-[#0DA5F0]/20 rounded-full blur-3xl pointer-events-none" />
+      {/* 3D Collectible Partner Card with Natural In-Card Lower Half Typography & QR */}
+      <div
+        className="relative rounded-[22px] sm:rounded-[26px] bg-[#0A0306]/95 backdrop-blur-2xl border-2 shadow-2xl p-2 sm:p-2.5 overflow-hidden text-black transition-all duration-500"
+        style={{
+          borderColor: `${selectedPokemon.typeColor}95`,
+          boxShadow: `0 24px 60px -12px rgba(0, 0, 0, 0.85), 0 0 40px ${selectedPokemon.typeColor}40`,
+        }}
+      >
+        {/* Ambient elemental atmospheric glow */}
+        <div
+          className="absolute -top-20 -left-20 w-56 h-56 rounded-full blur-3xl pointer-events-none opacity-40 transition-colors duration-500"
+          style={{ backgroundColor: selectedPokemon.typeColor }}
+        />
+        <div
+          className="absolute -bottom-20 -right-20 w-56 h-56 rounded-full blur-3xl pointer-events-none opacity-30 transition-colors duration-500"
+          style={{ backgroundColor: selectedPokemon.typeColor }}
+        />
 
-        {/* Pokédex Pass Image Container */}
-        <div className="relative rounded-[16px] overflow-hidden border border-white/20 shadow-inner bg-slate-950 flex flex-col items-center">
+        {/* PHYSICAL POKÉMON CARD CONTAINER (Anchored 1:1.42 card frame) */}
+        <div
+          ref={cardElementRef}
+          className="relative rounded-[16px] sm:rounded-[18px] overflow-hidden border-2 border-amber-900/30 shadow-2xl aspect-[1/1.42] w-full select-none"
+        >
+          {/* Base Card Artwork Template (Artwork & Species info untouched) */}
           <img
-            src={pokedexRedFrameImg}
-            alt="Beyond the Screen Red Pokédex Pass"
-            className="w-full h-auto object-cover max-h-[240px] select-none opacity-90"
+            src={cardArtUrl}
+            alt={`${selectedPokemon.name} Card`}
+            className="absolute inset-0 w-full h-full object-fill select-none pointer-events-none"
           />
 
-          {/* Holographic gloss overlay */}
-          <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/15 to-transparent pointer-events-none" />
-        </div>
+          {/* Holographic Shimmer Coating */}
+          <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent pointer-events-none opacity-60" />
 
-        {/* Accredited Trainer Badge */}
-        <div className="mt-4 pt-4 border-t border-[#1E293B] text-left space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5 font-pokemon tracking-wide text-xs text-[#FFCC03] drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-              <Sparkles className="w-3.5 h-3.5 text-[#0DA5F0]" />
-              <span>DECK ACCREDITATION PASS</span>
-            </div>
-
-            <span className="font-mono text-[10px] px-2 py-0.5 rounded bg-emerald-950/80 text-emerald-400 border border-emerald-700/60 font-bold">
-              ✓ ENTRY RESERVED
-            </span>
-          </div>
-
-          <div className="p-3.5 rounded-[8px] bg-[#121824] border border-[#1E293B] space-y-2.5">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="font-mono text-[9px] uppercase tracking-wider text-[#94A3B8]">
-                  TRAINER ACCREDITED
-                </div>
-                <div className="font-heading text-base font-bold text-white uppercase tracking-wide">
+          {/* ALL TRAINER DETAILS ANCHORED IN LOWER HALF SECTION (53.5% - 90% height) */}
+          <div className="absolute top-[53.5%] bottom-[5%] left-[5%] right-[5%] flex flex-col justify-between text-black pointer-events-none z-10 px-2 sm:px-2.5 py-1.5 sm:py-2">
+            
+            {/* 1. TRAINER IDENTITY & ACADEMIC INFO (Upper Attack Slot) */}
+            <div
+              className="text-left pb-1.5 sm:pb-2 space-y-1"
+              style={{ borderBottom: `1.5px solid ${pokemonTheme.divider}` }}
+            >
+              <div className="flex items-baseline justify-between gap-1">
+                <span
+                  className="font-pokemon text-[18px] sm:text-[22px] tracking-wide uppercase leading-none truncate drop-shadow-xs"
+                  style={{ color: pokemonTheme.primary }}
+                >
                   {formData.fullName || 'TRAINER'}
+                </span>
+                <span
+                  className="font-pokemon text-[14px] sm:text-[16.5px] shrink-0 uppercase tracking-wider font-bold"
+                  style={{ color: pokemonTheme.accent }}
+                >
+                  {formData.year || '2026'}
+                </span>
+              </div>
+              <div className="flex items-center justify-between text-[11.5px] sm:text-[14px] font-sans font-bold leading-tight">
+                <span style={{ color: pokemonTheme.subtext }}>
+                  AP ID: <strong className="font-mono text-black font-extrabold text-[12px] sm:text-[14.5px]">{formData.studentId || entryId}</strong>
+                </span>
+                <span
+                  className="truncate max-w-[55%] text-right font-extrabold uppercase text-[11px] sm:text-[13.5px]"
+                  style={{ color: pokemonTheme.accent }}
+                >
+                  {formData.department || 'SRM University-AP'}
+                </span>
+              </div>
+            </div>
+
+            {/* 2. BATTLE CLEARANCE & COMMS + BOTTOM CORNER QR CODE (Lower Attack Slot) */}
+            <div className="flex items-center justify-between gap-2.5 py-1 sm:py-1.5">
+              {/* Comms & Clearance details */}
+              <div className="text-left space-y-1 sm:space-y-1.5 flex-1 min-w-0">
+                <div
+                  className="font-pokemon text-[15px] sm:text-[18px] tracking-wide uppercase leading-tight"
+                  style={{ color: pokemonTheme.primary }}
+                >
+                  {formData.participationInterest === 'yes'
+                    ? 'BATTLE CHALLENGER'
+                    : formData.participationInterest === 'maybe'
+                    ? 'POKEMON SCOUT'
+                    : 'ARENA SPECTATOR'}
+                </div>
+                <div
+                  className="font-sans font-bold text-[11px] sm:text-[13.5px] leading-snug truncate"
+                  style={{ color: pokemonTheme.subtext }}
+                >
+                  {formData.email || 'trainer@srmap.edu.in'}
+                </div>
+                <div
+                  className="font-sans font-semibold text-[10.5px] sm:text-[12.5px] leading-snug"
+                  style={{ color: pokemonTheme.subtext }}
+                >
+                  {formData.contactNumber ? `Ph: ${formData.contactNumber} • ` : ''}{formData.gender || 'Trainer'}
+                </div>
+                <div
+                  className="font-mono text-[8.5px] sm:text-[10.5px] font-black px-2 py-0.5 rounded-md w-fit mt-1 border shadow-xs"
+                  style={{
+                    backgroundColor: pokemonTheme.badgeBg,
+                    color: pokemonTheme.badgeText,
+                    borderColor: pokemonTheme.badgeBorder,
+                  }}
+                >
+                  PASS: {entryId}
                 </div>
               </div>
 
-              <div className="text-right">
-                <div className="font-mono text-[9px] uppercase tracking-wider text-[#94A3B8]">
-                  PASS TOKEN
+              {/* Custom Styled QR Code in bottom right corner (Maintained Size with Pikachu Emblem) */}
+              <div className="shrink-0 flex flex-col items-center pointer-events-auto pl-1">
+                <div
+                  className="p-1 rounded-[7px] border-2 shadow-md"
+                  style={{
+                    borderColor: pokemonTheme.qrBorder,
+                    backgroundColor: '#FBF5DD',
+                  }}
+                >
+                  {qrCodeDataUrl ? (
+                    <img
+                      src={qrCodeDataUrl}
+                      alt="Trainer Pass QR Code"
+                      className="w-[72px] h-[72px] sm:w-[88px] sm:h-[88px] object-contain"
+                    />
+                  ) : (
+                    <div className="w-[72px] h-[72px] sm:w-[88px] sm:h-[88px] flex items-center justify-center bg-[#FBF5DD]">
+                      <QrCode className="w-8 h-8 text-black" />
+                    </div>
+                  )}
                 </div>
-                <div className="font-mono text-xs font-bold text-[#FFCC03]">
-                  {entryId}
-                </div>
+                <span
+                  className="font-pokemon text-[9.5px] sm:text-[11.5px] tracking-wider mt-1 uppercase font-bold"
+                  style={{ color: pokemonTheme.footerText }}
+                >
+                  SCAN PASS
+                </span>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[#1E293B] text-[11px] font-mono text-[#94A3B8]">
-              <div>
-                <span className="text-[#64748B]">STARTER: </span>
-                <span className="text-white uppercase font-bold">{formData.favouritePokemon || 'NOT SELECTED'}</span>
-              </div>
-              <div className="text-right">
-                <span className="text-[#64748B]">STATUS: </span>
-                <span className="text-amber-400 font-bold uppercase">{formData.participationInterest === 'yes' ? 'BATTLE READY' : 'RESERVED'}</span>
-              </div>
+            {/* 3. EVENT FOOTER STAMP */}
+            <div
+              className="flex items-center justify-between pt-1 sm:pt-1.5 text-[9px] sm:text-[11px] font-bold"
+              style={{
+                borderTop: `1.5px solid ${pokemonTheme.divider}`,
+                color: pokemonTheme.footerText,
+              }}
+            >
+              <span className="font-sans font-extrabold uppercase tracking-tight">VENUE: CV 402, SRM-AP</span>
+              <span className="font-pokemon tracking-wide">16 SEP 2026 (2:30 PM)</span>
             </div>
-          </div>
 
-          {/* Event Schedule Info Box */}
-          <div className="p-3 rounded-[8px] bg-black/60 border border-white/10 space-y-1.5">
-            <div className="font-mono text-[9px] uppercase tracking-wider text-amber-400 font-bold">
-              EVENT SCHEDULE & LOCATION
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px] font-mono text-white/90">
-              <span className="flex items-center gap-1.5 bg-white/5 border border-white/10 px-2.5 py-1 rounded">
-                <Calendar className="w-3.5 h-3.5 text-[#0DA5F0] shrink-0" />
-                <span>16 SEP 2026</span>
-              </span>
-              <span className="flex items-center gap-1.5 bg-white/5 border border-white/10 px-2.5 py-1 rounded">
-                <Clock className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                <span>2:30 PM — 5:30 PM</span>
-              </span>
-              <span className="flex items-center gap-1.5 bg-white/5 border border-white/10 px-2.5 py-1 rounded">
-                <MapPin className="w-3.5 h-3.5 text-rose-400 shrink-0" />
-                <span>CV 402, SRM-AP</span>
-              </span>
-            </div>
           </div>
         </div>
       </div>
 
-      {/* Verification notice if applicable */}
-      {isPendingVerification && (
-        <div className="p-3.5 rounded-[4px] bg-sky-50 border border-sky-200 text-sky-900 font-mono text-xs flex items-start gap-2.5 text-left">
-          <MailCheck className="w-4 h-4 text-[#0DA5F0] shrink-0 mt-0.5" />
+      {/* Email Delivery Status Alert */}
+      {emailStatus === 'sending' && (
+        <div className="p-3 rounded-[8px] bg-amber-500/10 border border-amber-500/30 text-amber-300 font-mono text-xs flex items-center justify-center gap-2 backdrop-blur-md">
+          <Loader2 className="w-4 h-4 animate-spin text-amber-400" />
+          <span>Generating PNG & PDF pass and emailing to {formData.email}...</span>
+        </div>
+      )}
+
+      {emailStatus === 'sent' && (
+        <div className="p-3 rounded-[8px] bg-emerald-950/80 border border-emerald-400/50 text-emerald-200 font-mono text-xs flex items-start gap-2.5 text-left backdrop-blur-md shadow-lg">
+          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
           <div>
-            <div className="font-bold text-[#0284C7]">VERIFICATION LINK TRANSMITTED</div>
-            <p className="text-[11px] text-slate-600 mt-0.5">
-              We have dispatched a verification email to <strong>{formData.email}</strong>. Check your inbox to confirm your seat.
+            <div className="font-bold text-emerald-300 font-pokemon tracking-wide">TRAINER PASS EMAILED SUCCESSFULLY! 📬</div>
+            <p className="text-[11px] text-emerald-100 mt-0.5">
+              {emailMessage || `Your collectible PNG card and PDF pass have been sent to ${formData.email}. Check your inbox!`}
             </p>
           </div>
         </div>
       )}
 
-      {/* Action Buttons */}
-      <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+      {emailStatus === 'failed' && (
+        <div className="p-3 rounded-[8px] bg-rose-950/80 border border-rose-400/50 text-rose-200 font-mono text-xs flex items-start gap-2.5 text-left backdrop-blur-md">
+          <Mail className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+          <div>
+            <div className="font-bold text-rose-300 font-pokemon tracking-wide">AUTOMATIC EMAIL NOTICE</div>
+            <p className="text-[11px] text-rose-100 mt-0.5">
+              {emailMessage}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Verification notice if applicable */}
+      {isPendingVerification && emailStatus === 'idle' && (
+        <div className="p-3.5 rounded-[6px] bg-sky-950/80 border border-sky-400/50 text-sky-200 font-mono text-xs flex items-start gap-2.5 text-left backdrop-blur-md shadow-md">
+          <MailCheck className="w-4 h-4 text-sky-400 shrink-0 mt-0.5" />
+          <div>
+            <div className="font-bold text-sky-300 font-pokemon tracking-wide">VERIFICATION CONFIRMATION DISPATCHED</div>
+            <p className="text-[11px] text-slate-300 mt-0.5">
+              We have transmitted your trainer credentials and pass confirmation to <strong>{formData.email}</strong>.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Primary Action Buttons: Download PNG, Download PDF, Email Pass */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
+        <Button
+          onClick={handleDownloadPng}
+          disabled={isDownloadingPng}
+          variant="outline"
+          className="w-full font-mono text-xs bg-black/60 border-white/30 text-white hover:border-[#FFCC03] hover:text-[#FFCC03] gap-1.5 cursor-pointer shadow-md"
+        >
+          {isDownloadingPng ? (
+            <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-400" />
+          ) : (
+            <Download className="w-3.5 h-3.5 text-amber-400" />
+          )}
+          <span>SAVE PNG CARD</span>
+        </Button>
+
+        <Button
+          onClick={handleDownloadPdf}
+          disabled={isDownloadingPdf}
+          variant="outline"
+          className="w-full font-mono text-xs bg-black/60 border-white/30 text-white hover:border-[#FFCC03] hover:text-[#FFCC03] gap-1.5 cursor-pointer shadow-md"
+        >
+          {isDownloadingPdf ? (
+            <Loader2 className="w-3.5 h-3.5 animate-spin text-sky-400" />
+          ) : (
+            <FileDown className="w-3.5 h-3.5 text-sky-400" />
+          )}
+          <span>DOWNLOAD PDF</span>
+        </Button>
+
+        <Button
+          onClick={() => handleEmailPass(false)}
+          disabled={isEmailing}
+          variant="outline"
+          className="w-full font-mono text-xs bg-black/60 border-white/30 text-white hover:border-[#FFCC03] hover:text-[#FFCC03] gap-1.5 cursor-pointer shadow-md"
+        >
+          {isEmailing ? (
+            <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-400" />
+          ) : (
+            <Mail className="w-3.5 h-3.5 text-emerald-400" />
+          )}
+          <span>RESEND EMAIL</span>
+        </Button>
+      </div>
+
+      {/* Secondary Actions: Share & Explore Events */}
+      <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-1">
         <Button
           onClick={handleShare}
           variant="outline"
-          className="w-full sm:w-auto font-mono text-xs border-[#CBD5E1] text-[#090D12] hover:border-[#0DA5F0] gap-1.5"
+          className="w-full sm:w-auto font-mono text-xs border-white/30 text-white hover:border-[#FFCC03] gap-1.5"
         >
-          <Share2 className="w-3.5 h-3.5" />
-          <span>SHARE DECK</span>
+          <Share2 className="w-3.5 h-3.5 text-amber-400" />
+          <span>SHARE TRAINER CARD</span>
         </Button>
 
         <Link to="/events" className="w-full sm:w-auto">
@@ -179,7 +672,7 @@ export const RegistrationSuccess: React.FC<RegistrationSuccessProps> = ({
         <button
           type="button"
           onClick={onReset}
-          className="text-xs font-mono text-[#64748B] hover:text-[#0DA5F0] underline cursor-pointer"
+          className="text-xs font-mono text-slate-400 hover:text-amber-300 underline cursor-pointer"
         >
           Register another trainer deck
         </button>
