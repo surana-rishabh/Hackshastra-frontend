@@ -74,12 +74,30 @@ export const EventsPage: React.FC = () => {
                       </div>
                     </div>
 
-                    <Link to="/join">
-                      <Button variant="primary" size="sm" className="font-mono text-xs">
-                        <span>GET NOTIFIED</span>
-                        <ArrowUpRight className="h-3.5 w-3.5 ml-1" />
-                      </Button>
-                    </Link>
+                    {ev.registerUrl ? (
+                      ev.registerUrl.startsWith('http') ? (
+                        <a href={ev.registerUrl} target="_blank" rel="noopener noreferrer">
+                          <Button variant="primary" size="sm" className="font-mono text-xs">
+                            <span>REGISTER NOW</span>
+                            <ArrowUpRight className="h-3.5 w-3.5 ml-1" />
+                          </Button>
+                        </a>
+                      ) : (
+                        <Link to={ev.registerUrl}>
+                          <Button variant="primary" size="sm" className="font-mono text-xs bg-[#0DA5F0] hover:bg-[#0284C7] shadow-sm">
+                            <span>REGISTER DECK</span>
+                            <ArrowUpRight className="h-3.5 w-3.5 ml-1" />
+                          </Button>
+                        </Link>
+                      )
+                    ) : (
+                      <Link to="/join">
+                        <Button variant="primary" size="sm" className="font-mono text-xs">
+                          <span>GET NOTIFIED</span>
+                          <ArrowUpRight className="h-3.5 w-3.5 ml-1" />
+                        </Button>
+                      </Link>
+                    )}
                   </div>
                 </TechBorderCard>
               </FadeUp>
@@ -116,17 +134,7 @@ export const EventsPage: React.FC = () => {
 
                   <div className="mt-6 pt-4 border-t border-[#E2E8F0] flex items-center justify-between text-xs font-mono text-[#94A3B8]">
                     <span>SRM University-AP</span>
-                    {ev.registerUrl && (
-                      <a
-                        href={ev.registerUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-[#0DA5F0] hover:underline flex items-center gap-1 font-semibold"
-                      >
-                        <span>Unstop Portal</span>
-                        <ArrowUpRight className="h-3 w-3" />
-                      </a>
-                    )}
+                    <span className="text-xs font-medium text-emerald-600">Concluded</span>
                   </div>
                 </div>
               </FadeUp>

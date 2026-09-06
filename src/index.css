@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'Pokemon Solid';
+  src: url('/fonts/PokemonSolidNormal-xyWR.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 @layer base {
   :root {
     /* 8-COLOR WHITE-BASE MASTER PALETTE */
@@ -32,6 +40,16 @@
     --font-heading: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
     --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
+    --font-pixel: 'Press Start 2P', monospace;
+    --font-pokemon: 'Pokemon Solid', cursive, sans-serif;
+  }
+
+  .font-pixel {
+    font-family: var(--font-pixel);
+  }
+
+  .font-pokemon {
+    font-family: var(--font-pokemon);
   }
 
   * {
@@ -42,6 +60,10 @@
     background-color: var(--color-bg-base);
     color: var(--color-text-primary);
     font-family: var(--font-body);
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
   }
 
   body {
@@ -49,6 +71,29 @@
     min-height: 100dvh;
     background-color: var(--color-bg-base);
     color: var(--color-text-primary);
+    overscroll-behavior-y: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-overflow-scrolling: touch;
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* Optimize Android & iOS hardware acceleration for smooth 60fps/120fps scrolling */
+  img, video, canvas, svg {
+    content-visibility: auto;
+  }
+
+  /* Interactive touch target minimum size for mobile accessibility & prevent iOS auto-zoom */
+  button, a, input, select, textarea {
+    touch-action: manipulation;
+  }
+
+  /* Prevent iOS Safari 16px input zoom quirk on focus */
+  @media screen and (max-width: 768px) {
+    input, select, textarea {
+      font-size: 16px !important;
+    }
   }
 }
 
@@ -77,6 +122,10 @@
 }
 .font-mono {
   font-family: var(--font-mono);
+}
+.font-pokemon {
+  font-family: var(--font-pokemon);
+  letter-spacing: 0.06em;
 }
 
 /* Glow & Atmospheric Effects on White */

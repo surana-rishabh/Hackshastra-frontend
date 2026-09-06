@@ -73,6 +73,17 @@
   "events": {
     "upcoming": [
       {
+        "title": "Beyond the Screen — Interactive Collectible Deck",
+        "subtitle": "16 September 2026 • 2:30 PM – 5:30 PM • CV 402 | Build your trainer registration deck",
+        "image": "@/assets/events/beyond-the-screen/squirtle-card.png",
+        "completed": false,
+        "announcement": "REGISTRATIONS OPEN",
+        "registerUrl": "/events/beyond-the-screen/register",
+        "date": "16 September 2026",
+        "time": "2:30 PM – 5:30 PM",
+        "location": "CV 402, SRM University-AP"
+      },
+      {
         "title": "HackShastra National Hackathon 2026",
         "subtitle": "India's Premier 36-Hour Student Hackathon & Innovation Codefest | Registrations Opening Soon",
         "image": "/events/blockforge.png",
@@ -92,8 +103,7 @@
         "title": "TEXPO'26 - Student Innovation & Industry Technology Expo",
         "subtitle": "Student Innovation & Industry Technology Expo | Prizes worth ₹30,000",
         "image": "/events/texpo.png",
-        "completed": true,
-        "registerUrl": "https://unstop.com/competitions/texpo-2026-student-innovation-and-industry-technology-expo-srm-university-srmap-andhra-pradesh-1638340"
+        "completed": true
       },
       {
         "title": "Block Forge - Blockchain Workshop & Hackathon",

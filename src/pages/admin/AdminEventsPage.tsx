@@ -9,7 +9,13 @@ import {
   AlertCircle, 
   X, 
   Radio,
-  MapPin
+  MapPin,
+  Users,
+  Search,
+  Filter,
+  Flame,
+  Droplets,
+  Leaf
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 
@@ -18,6 +24,16 @@ export const AdminEventsPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<any | null>(null);
+
+  // Registrations inspection state
+  const [regModalOpen, setRegModalOpen] = useState(false);
+  const [activeRegEvent, setActiveRegEvent] = useState<any | null>(null);
+  const [registrations, setRegistrations] = useState<any[]>([]);
+  const [regLoading, setRegLoading] = useState(false);
+  const [regSearch, setRegSearch] = useState('');
+  const [regStatusFilter, setRegStatusFilter] = useState('');
+  const [regPokemonFilter, setRegPokemonFilter] = useState('');
+  const [regParticipationFilter, setRegParticipationFilter] = useState('');
 
   const [formData, setFormData] = useState({
     title: '',
@@ -33,6 +49,32 @@ export const AdminEventsPage: React.FC = () => {
 
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+
+  const fetchRegistrations = async (eventId: string | number) => {
+    setRegLoading(true);
+    try {
+      const params = new URLSearchParams();
+      if (regStatusFilter) params.append('status', regStatusFilter);
+      if (regPokemonFilter) params.append('favouritePokemon', regPokemonFilter);
+      if (regParticipationFilter) params.append('participationInterest', regParticipationFilter);
+      if (regSearch) params.append('search', regSearch);
+
+      const res = await api.get(`/api/admin/events/${eventId}/registrations?${params.toString()}`);
+      if (res.success && res.data) {
+        setRegistrations(res.data.registrations || []);
+      }
+    } catch (err) {
+      console.error('Error fetching registrations:', err);
+    } finally {
+      setRegLoading(false);
+    }
+  };
+
+  const handleOpenRegistrations = (ev: any) => {
+    setActiveRegEvent(ev);
+    setRegModalOpen(true);
+    fetchRegistrations(ev.id);
+  };
 
   const fetchEvents = async () => {
     try {
@@ -177,7 +219,21 @@ export const AdminEventsPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 shrink-0">
+                <div className="flex items-center gap-2 shrink-0 flex-wrap">
+                  <Button
+                    onClick={() => handleOpenRegistrations(ev)}
+                    variant="outline"
+                    size="sm"
+                    className="font-mono text-xs border-[#0DA5F0]/40 text-[#0DA5F0] hover:bg-[#0DA5F0]/10"
+                  >
+                    <Users className="h-3.5 w-3.5 mr-1" />
+                    <span>REGISTRATIONS</span>
+                    {ev.verified_registrations_count !== undefined && (
+                      <span className="ml-1 px-1.5 py-0.2 rounded bg-[#0DA5F0]/20 text-[10px]">
+                        {ev.verified_registrations_count}
+                      </span>
+                    )}
+                  </Button>
                   <Button
                     onClick={() => handleOpenEdit(ev)}
                     variant="outline"
@@ -301,6 +357,232 @@ export const AdminEventsPage: React.FC = () => {
                 </Button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Registrations List Inspection Modal */}
+      {regModalOpen && activeRegEvent && (
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6">
+          <div className="max-w-5xl w-full rounded-[2px] border border-[#1E293B] bg-[#0D121A] p-5 sm:p-6 shadow-2xl flex flex-col max-h-[90vh]">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-[#1E293B] pb-4 mb-4">
+              <div>
+                <div className="font-mono text-[10px] text-[#0DA5F0] uppercase font-bold tracking-wider">
+                  [ EVENT REGISTRATIONS & TRAINER DECKS ]
+                </div>
+                <h2 className="font-heading text-xl sm:text-2xl font-bold text-white">
+                  {activeRegEvent.title}
+                </h2>
+              </div>
+              <button
+                onClick={() => setRegModalOpen(false)}
+                className="text-[#64748B] hover:text-white cursor-pointer p-1"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+
+            {/* Filter Bar */}
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-4">
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Search name, email, ID..."
+                  value={regSearch}
+                  onChange={(e) => setRegSearch(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && fetchRegistrations(activeRegEvent.id)}
+                  className="w-full rounded-[2px] border border-[#1E293B] bg-[#090D12] pl-8 pr-3 py-1.5 text-xs text-[#F8FAFC] focus:border-[#0DA5F0] outline-none"
+                />
+                <Search className="w-3.5 h-3.5 text-[#64748B] absolute left-2.5 top-1/2 -translate-y-1/2" />
+              </div>
+
+              <div>
+                <select
+                  value={regPokemonFilter}
+                  onChange={(e) => {
+                    setRegPokemonFilter(e.target.value);
+                  }}
+                  className="w-full rounded-[2px] border border-[#1E293B] bg-[#090D12] px-2.5 py-1.5 text-xs text-[#F8FAFC] focus:border-[#0DA5F0] outline-none cursor-pointer"
+                >
+                  <option value="">All Pokémon</option>
+                  <option value="squirtle">Squirtle (Water)</option>
+                  <option value="charmander">Charmander (Fire)</option>
+                  <option value="bulbasaur">Bulbasaur (Grass)</option>
+                </select>
+              </div>
+
+              <div>
+                <select
+                  value={regParticipationFilter}
+                  onChange={(e) => {
+                    setRegParticipationFilter(e.target.value);
+                  }}
+                  className="w-full rounded-[2px] border border-[#1E293B] bg-[#090D12] px-2.5 py-1.5 text-xs text-[#F8FAFC] focus:border-[#0DA5F0] outline-none cursor-pointer"
+                >
+                  <option value="">All Readiness</option>
+                  <option value="yes">Battle Ready (I'M IN)</option>
+                  <option value="maybe">Scout (MAYBE)</option>
+                  <option value="no">Spectator (NOT NOW)</option>
+                </select>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Button
+                  onClick={() => fetchRegistrations(activeRegEvent.id)}
+                  variant="primary"
+                  size="sm"
+                  className="w-full font-mono text-xs"
+                >
+                  <span>FILTER</span>
+                </Button>
+                <Button
+                  onClick={() => {
+                    setRegSearch('');
+                    setRegPokemonFilter('');
+                    setRegParticipationFilter('');
+                    setRegStatusFilter('');
+                    setTimeout(() => fetchRegistrations(activeRegEvent.id), 50);
+                  }}
+                  variant="outline"
+                  size="sm"
+                  className="font-mono text-xs border-[#334155]"
+                >
+                  <span>RESET</span>
+                </Button>
+              </div>
+            </div>
+
+            {/* Registrations Data Table */}
+            <div className="flex-1 overflow-y-auto rounded-[2px] border border-[#1E293B] bg-[#090D12]">
+              {regLoading ? (
+                <div className="p-12 text-center text-[#64748B] font-mono text-xs">
+                  Loading registrations from PostgreSQL...
+                </div>
+              ) : registrations.length === 0 ? (
+                <div className="p-12 text-center text-[#64748B] font-mono text-xs">
+                  No registrations found for this query.
+                </div>
+              ) : (
+                <table className="w-full text-left font-mono text-xs border-collapse">
+                  <thead>
+                    <tr className="border-b border-[#1E293B] bg-[#121824] text-[#94A3B8] uppercase text-[10px]">
+                      <th className="p-3">Trainer / Student ID</th>
+                      <th className="p-3">Comms Signal</th>
+                      <th className="p-3">Academic Class</th>
+                      <th className="p-3">Partner</th>
+                      <th className="p-3">Readiness</th>
+                      <th className="p-3">Status</th>
+                      <th className="p-3">Timestamp</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#1E293B] text-[#F8FAFC]">
+                    {registrations.map((reg) => (
+                      <tr key={reg.id} className="hover:bg-[#121824]/60 transition-colors">
+                        <td className="p-3">
+                          <div className="font-heading font-bold text-white text-sm">
+                            {reg.full_name}
+                          </div>
+                          <div className="text-[10px] text-[#0DA5F0]">
+                            {reg.student_id || 'ID: N/A'} {reg.gender && `• ${reg.gender}`}
+                          </div>
+                        </td>
+                        <td className="p-3">
+                          <div>{reg.email}</div>
+                          <div className="text-[10px] text-[#64748B]">{reg.phone || 'No phone'}</div>
+                        </td>
+                        <td className="p-3">
+                          <div>{reg.department || reg.college || '—'}</div>
+                          <div className="text-[10px] text-[#64748B]">{reg.year || '—'}</div>
+                        </td>
+                        <td className="p-3">
+                          {reg.favourite_pokemon ? (
+                            <span
+                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-[2px] uppercase text-[10px] font-bold"
+                              style={{
+                                backgroundColor:
+                                  reg.favourite_pokemon.toLowerCase() === 'charmander'
+                                    ? '#F9731620'
+                                    : reg.favourite_pokemon.toLowerCase() === 'bulbasaur'
+                                    ? '#65A30D20'
+                                    : '#0DA5F020',
+                                color:
+                                  reg.favourite_pokemon.toLowerCase() === 'charmander'
+                                    ? '#F97316'
+                                    : reg.favourite_pokemon.toLowerCase() === 'bulbasaur'
+                                    ? '#65A30D'
+                                    : '#0DA5F0',
+                                border: `1px solid ${
+                                  reg.favourite_pokemon.toLowerCase() === 'charmander'
+                                    ? '#F9731640'
+                                    : reg.favourite_pokemon.toLowerCase() === 'bulbasaur'
+                                    ? '#65A30D40'
+                                    : '#0DA5F040'
+                                }`,
+                              }}
+                            >
+                              {reg.favourite_pokemon}
+                            </span>
+                          ) : (
+                            <span className="text-[#64748B]">—</span>
+                          )}
+                        </td>
+                        <td className="p-3">
+                          <span
+                            className="px-2 py-0.5 rounded-[2px] text-[10px] font-bold uppercase"
+                            style={{
+                              backgroundColor:
+                                reg.participation_interest === 'yes'
+                                  ? '#10B98120'
+                                  : '#64748B20',
+                              color:
+                                reg.participation_interest === 'yes'
+                                  ? '#10B981'
+                                  : '#94A3B8',
+                            }}
+                          >
+                            {reg.participation_interest === 'yes'
+                              ? "I'M IN"
+                              : reg.participation_interest === 'maybe'
+                              ? 'MAYBE'
+                              : reg.participation_interest === 'no'
+                              ? 'NOT NOW'
+                              : 'GENERAL'}
+                          </span>
+                        </td>
+                        <td className="p-3">
+                          <span
+                            className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
+                              reg.status === 'VERIFIED'
+                                ? 'bg-emerald-950/80 text-emerald-400 border border-emerald-800'
+                                : 'bg-sky-950/80 text-sky-400 border border-sky-800'
+                            }`}
+                          >
+                            {reg.status}
+                          </span>
+                        </td>
+                        <td className="p-3 text-[10px] text-[#64748B]">
+                          {reg.created_at ? new Date(reg.created_at).toLocaleDateString() : '—'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="pt-3 flex items-center justify-between border-t border-[#1E293B] mt-3 text-xs font-mono text-[#94A3B8]">
+              <span>TOTAL TRAINER DECKS: {registrations.length}</span>
+              <Button
+                onClick={() => setRegModalOpen(false)}
+                variant="outline"
+                size="sm"
+                className="font-mono text-xs"
+              >
+                CLOSE
+              </Button>
+            </div>
           </div>
         </div>
       )}

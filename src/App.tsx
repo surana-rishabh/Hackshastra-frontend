@@ -18,7 +18,7 @@ import { GalleryPage } from '@/pages/GalleryPage';
 import { TeamPage } from '@/pages/TeamPage';
 import { ContactPage } from '@/pages/ContactPage';
 import { JoinPage } from '@/pages/JoinPage';
-import { TexpoRegisterPage } from '@/pages/TexpoRegisterPage';
+import { BeyondTheScreenRegister } from '@/pages/BeyondTheScreenRegister';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 
 export const App: React.FC = () => {
@@ -56,6 +56,13 @@ export const App: React.FC = () => {
                 <Route path="content" element={<AdminContentPage />} />
               </Route>
 
+              {/* Standalone Immersive Registration Deck (No Navbar / No Footer / Full-Bleed Video Experience) */}
+              <Route path="/events/beyond-the-screen/register" element={<BeyondTheScreenRegister />} />
+              <Route path="/events/beyond-the-screen" element={<BeyondTheScreenRegister />} />
+              <Route path="/beyond-the-screen-register" element={<BeyondTheScreenRegister />} />
+              <Route path="/register/beyond-the-screen" element={<BeyondTheScreenRegister />} />
+              <Route path="/events/register" element={<BeyondTheScreenRegister />} />
+
               {/* Public Website */}
               <Route
                 path="*"
@@ -69,7 +76,6 @@ export const App: React.FC = () => {
                       <Route path="/team" element={<TeamPage />} />
                       <Route path="/contact" element={<ContactPage />} />
                       <Route path="/join" element={<JoinPage />} />
-                      <Route path="/texpo-register" element={<TexpoRegisterPage />} />
                       <Route path="*" element={<NotFoundPage />} />
                     </Routes>
                   </Layout>

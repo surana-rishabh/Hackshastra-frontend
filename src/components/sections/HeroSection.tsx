@@ -140,6 +140,7 @@ export const HeroSection: React.FC = () => {
                     loop
                     muted={isMuted}
                     playsInline
+                    preload="metadata"
                     className="h-full w-full object-cover transition-all duration-300"
                   />
                   <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between bg-[#FFFFFF]/90 backdrop-blur-sm border border-[#E2E8F0] px-3 py-1.5 rounded-[2px] shadow-sm">
