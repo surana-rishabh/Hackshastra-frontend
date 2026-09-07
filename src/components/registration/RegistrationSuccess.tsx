@@ -154,14 +154,14 @@ export const RegistrationSuccess: React.FC<RegistrationSuccessProps> = ({
     );
   }, [formData, entryId, selectedPokemon]);
 
-  // Helper to generate crisp high-resolution PNG data URL from the card DOM element
-  const generateCardPng = async (): Promise<string | null> => {
+  // Helper to generate crisp PNG data URL from the card DOM element
+  // Default pixelRatio: 1.2 produces ~250KB payload (optimal for Vercel 4.5MB serverless limits)
+  // Higher pixelRatio (2.5) is used when user explicitly clicks "Download Card PNG"
+  const generateCardPng = async (pixelRatio = 1.2): Promise<string | null> => {
     if (!cardElementRef.current) return null;
     try {
-      // Scale 2.5 gives ultra high-definition resolution for printing and crisp viewing.
-      // skipFonts: true prevents SecurityError: Failed to read 'cssRules' property from remote Google Fonts stylesheets.
       const dataUrl = await toPng(cardElementRef.current, {
-        pixelRatio: 2.5,
+        pixelRatio,
         cacheBust: true,
         skipFonts: true,
       });
@@ -318,7 +318,7 @@ export const RegistrationSuccess: React.FC<RegistrationSuccessProps> = ({
   const handleDownloadPng = async () => {
     try {
       setIsDownloadingPng(true);
-      const pngDataUrl = await generateCardPng();
+      const pngDataUrl = await generateCardPng(2.5);
       if (!pngDataUrl) throw new Error('Could not generate PNG');
 
       const link = document.createElement('a');

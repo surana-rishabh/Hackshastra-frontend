@@ -61,12 +61,17 @@ async function request<T = any>(endpoint: string, options: RequestInit = {}): Pr
       return data;
     }
 
-    // If server returned structured success error (e.g. invalid OTP), pass error to caller
-    if (!res.ok && data && (data.message?.includes('OTP') || data.message?.includes('validation') || data.message?.includes('Email'))) {
+    // If server responded with an error (e.g. 400 validation, 409 duplicate, 500), return real error to caller
+    if (!res.ok) {
+      const errorMsg =
+        data?.message ||
+        data?.error ||
+        (Array.isArray(data?.errors) ? data.errors.join(', ') : null) ||
+        `Request failed with status ${res.status}`;
       return {
         success: false,
-        message: data.message || data.error || `HTTP ${res.status}`,
-        data: data.data || data,
+        message: errorMsg,
+        data: data?.data || data,
       };
     }
   } catch (netErr: any) {
