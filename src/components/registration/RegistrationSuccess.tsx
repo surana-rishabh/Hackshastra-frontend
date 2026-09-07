@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { motion } from 'motion/react';
 import { CheckCircle2, Calendar, Clock, MapPin, ArrowRight, Share2, Sparkles, MailCheck, Shield, Zap, QrCode, Download, FileDown, Mail, Loader2 } from 'lucide-react';
-import { toPng } from 'html-to-image';
+import { toPng, toJpeg } from 'html-to-image';
 import jsPDF from 'jspdf';
 import { RegistrationFormData } from '@/hooks/useRegistrationForm';
 import { POKEMON_OPTIONS } from '@/data/registration/beyondTheScreen';
@@ -154,10 +154,8 @@ export const RegistrationSuccess: React.FC<RegistrationSuccessProps> = ({
     );
   }, [formData, entryId, selectedPokemon]);
 
-  // Helper to generate crisp PNG data URL from the card DOM element
-  // Default pixelRatio: 1.2 produces ~250KB payload (optimal for Vercel 4.5MB serverless limits)
-  // Higher pixelRatio (2.5) is used when user explicitly clicks "Download Card PNG"
-  const generateCardPng = async (pixelRatio = 1.2): Promise<string | null> => {
+  // Helper to generate high-resolution PNG for user manual download
+  const generateCardPng = async (pixelRatio = 2.0): Promise<string | null> => {
     if (!cardElementRef.current) return null;
     try {
       const dataUrl = await toPng(cardElementRef.current, {
@@ -172,15 +170,35 @@ export const RegistrationSuccess: React.FC<RegistrationSuccessProps> = ({
     }
   };
 
-  // Helper to generate styled single-page PDF pass with embedded card graphic & QR details
-  const generateCardPdf = async (pngDataUrl?: string): Promise<string | null> => {
+  // Helper to generate ultra-lightweight card image for email pass dispatch (~80KB - 140KB)
+  // Crucial for eliminating Vercel 4.5MB payload limit (Status code 413)
+  const generateCardImageForEmail = async (): Promise<string | null> => {
+    if (!cardElementRef.current) return null;
     try {
-      const imgUrl = pngDataUrl || (await generateCardPng());
+      const dataUrl = await toJpeg(cardElementRef.current, {
+        quality: 0.8,
+        canvasWidth: 500,
+        canvasHeight: 710,
+        cacheBust: true,
+        skipFonts: true,
+      });
+      return dataUrl;
+    } catch (err) {
+      console.warn('toJpeg failed, fallback to toPng:', err);
+      return await generateCardPng(1.0);
+    }
+  };
+
+  // Helper to generate styled single-page PDF pass with embedded card graphic & QR details
+  const generateCardPdf = async (cardDataUrl?: string): Promise<string | null> => {
+    try {
+      const imgUrl = cardDataUrl || (await generateCardImageForEmail());
 
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
         format: 'a4',
+        compress: true,
       });
 
       const pageWidth = pdf.internal.pageSize.getWidth();
@@ -205,17 +223,18 @@ export const RegistrationSuccess: React.FC<RegistrationSuccessProps> = ({
 
       let infoY = 45;
 
-      // If PNG card graphic is generated, embed it at top center of PDF
+      // If card graphic is generated, embed it at top center of PDF
       if (imgUrl) {
         const cardWidth = 105;
         const cardHeight = 105 * 1.42;
         const cardX = (pageWidth - cardWidth) / 2;
         const cardY = 38;
         try {
-          pdf.addImage(imgUrl, 'PNG', cardX, cardY, cardWidth, cardHeight, undefined, 'FAST');
+          const imgFormat = imgUrl.startsWith('data:image/png') ? 'PNG' : 'JPEG';
+          pdf.addImage(imgUrl, imgFormat, cardX, cardY, cardWidth, cardHeight, undefined, 'FAST');
           infoY = cardY + cardHeight + 6;
         } catch (e) {
-          console.warn('Could not embed card PNG in PDF:', e);
+          console.warn('Could not embed card image in PDF:', e);
         }
       }
 
@@ -278,8 +297,8 @@ export const RegistrationSuccess: React.FC<RegistrationSuccessProps> = ({
       // Wait a tick for fonts/canvas if needed
       await new Promise((r) => setTimeout(r, 400));
 
-      const pngData = await generateCardPng();
-      const pdfData = await generateCardPdf(pngData || undefined);
+      const cardData = await generateCardImageForEmail();
+      const pdfData = await generateCardPdf(cardData || undefined);
 
       await api.post('/api/registrations/send-pass', {
         email: formData.email,
@@ -287,7 +306,7 @@ export const RegistrationSuccess: React.FC<RegistrationSuccessProps> = ({
         eventTitle: 'Beyond the Screen',
         passId: entryId,
         pokemonName: selectedPokemon.name,
-        imageDataUrl: pngData,
+        imageDataUrl: cardData,
         pdfDataUrl: pdfData,
       });
 
