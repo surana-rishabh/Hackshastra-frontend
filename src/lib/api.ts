@@ -11,7 +11,7 @@ export interface ApiResponse<T = any> {
 const BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
   import.meta.env.VITE_API_URL ||
-  (import.meta.env.PROD ? '' : 'http://localhost:5000');
+  (import.meta.env.PROD ? 'https://hackshastra-backend-production.up.railway.app' : 'http://localhost:5000');
 
 async function request<T = any>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
   const url = endpoint.startsWith('http') ? endpoint : `${BASE_URL}${endpoint}`;
