@@ -21,11 +21,15 @@ export default defineConfig({
     },
   },
   build: {
+    chunkSizeWarningLimit: 1500,
     rollupOptions: {
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom', 'react-router-dom'],
           motion: ['motion'],
+          three: ['three'],
+          pdf: ['jspdf', 'html-to-image', 'qrcode'],
+          icons: ['lucide-react'],
         },
       },
     },
