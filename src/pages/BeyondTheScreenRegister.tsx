@@ -11,9 +11,47 @@ import { FadeUp } from '@/components/ui/MotionWrapper';
 import { api } from '@/lib/api';
 import bgVideoUrl from '@/assets/events/beyond-the-screen/bg-loop.webm';
 import { PokeballCursor } from '@/components/registration/PokeballCursor';
+import { PokedexBootLoader } from '@/components/registration/PokedexBootLoader';
+import { useAssetPreloader } from '@/hooks/useAssetPreloader';
+
+// Preloadable assets
+import pokedexFrameImg from '@/assets/events/beyond-the-screen/pokedex-frame.jpg';
+import pokedexRedFrameImg from '@/assets/events/beyond-the-screen/pokedex-red-frame.jpg';
+import squirtleCardImg from '@/assets/events/beyond-the-screen/squirtle-card.png';
+import charmanderCardImg from '@/assets/events/beyond-the-screen/charmander-card.png';
+import bulbasaurCardImg from '@/assets/events/beyond-the-screen/bulbasaur-card.png';
+import bulbasaurCleanImg from '@/assets/events/beyond-the-screen/bulbasaur-clean-card.png';
+import charmanderCleanImg from '@/assets/events/beyond-the-screen/charmander-clean-card.png';
+import squirtleCleanImg from '@/assets/events/beyond-the-screen/squirtle-clean-card.png';
+import cardBackImg from '@/assets/events/beyond-the-screen/card-back.jpg';
+
+const PRELOAD_IMAGES = [
+  pokedexFrameImg,
+  pokedexRedFrameImg,
+  squirtleCardImg,
+  charmanderCardImg,
+  bulbasaurCardImg,
+  bulbasaurCleanImg,
+  charmanderCleanImg,
+  squirtleCleanImg,
+  cardBackImg,
+  '/events/beyond-the-screen/qr-center-icon.png',
+  'https://i.postimg.cc/qvLJKBzM/Zeichenfl-che-2.png',
+  'https://i.postimg.cc/hPzk7chQ/Zeichenfl-che-2-Kopie.png',
+  'https://i.postimg.cc/KY7MxrdR/hyberball.png',
+  'https://i.postimg.cc/9MWqMwh1/masterball.png',
+];
 
 export const BeyondTheScreenRegister: React.FC = () => {
   const navigate = useNavigate();
+
+  // Full asset preloader with cinematic Pokédex booting screen
+  const { isLoading, progress, statusMessage } = useAssetPreloader({
+    videos: [bgVideoUrl || '/events/beyond-the-screen/bg-loop.webm'],
+    images: PRELOAD_IMAGES,
+    fonts: true,
+    minDisplayTimeMs: 900,
+  });
 
   const { formData, errors, setFieldValue, validateAll, resetForm } = useRegistrationForm();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
@@ -86,6 +124,13 @@ export const BeyondTheScreenRegister: React.FC = () => {
 
   return (
     <div className="pokeball-cursor-page relative min-h-screen w-full bg-[#FCF6D9] flex flex-col justify-start items-center pt-5 sm:pt-8 pb-12 px-3 sm:px-4 overflow-x-hidden text-[#0F172A] selection:bg-[#CF4B00]/30 selection:text-[#0F172A]">
+      {/* Fullscreen Pokédex Preloader: Blocks view until all assets are buffered */}
+      <PokedexBootLoader
+        isLoading={isLoading}
+        progress={progress}
+        statusMessage={statusMessage}
+      />
+
       <PokeballCursor />
       {/* Full-Page Continuous Video Background Loop */}
       <PingPongVideoBackground
