@@ -59,7 +59,7 @@ export const POKEMON_OPTIONS: PokemonOption[] = [
     id: 'squirtle',
     name: 'SQUIRTLE',
     type: 'WATER',
-    typeColor: '#0DA5F0',
+    typeColor: '#1789E5',
     description: 'Tiny Turtle Pokémon • Hydro Cannon ready',
     imageKey: 'squirtle-card.png',
     cleanImageKey: 'squirtle-clean-card.png',
@@ -151,14 +151,14 @@ export const beyondTheScreenConfig: RegistrationDeckConfig = {
       title: 'TRAINER PROFILE',
       subtitle: 'Identify yourself before entering the arena.',
       artworkKey: 'squirtle-card.png',
-      typeAccent: '#0DA5F0',
+      typeAccent: '#1789E5',
       typeBadge: 'WATER // 007',
       fields: [
         {
           name: 'fullName',
           label: 'TRAINER NAME',
           type: 'text',
-          placeholder: 'e.g. Ash Ketchum / Rishabh Surana',
+          placeholder: 'e.g. Ash Ketchum / Alex Morgan',
           helperText: 'Your official full name for event accreditation',
           required: true,
         },
@@ -186,7 +186,7 @@ export const beyondTheScreenConfig: RegistrationDeckConfig = {
       title: 'COMMS SIGNAL',
       subtitle: 'Establish your direct communication channel.',
       artworkKey: 'squirtle-card.png',
-      typeAccent: '#0DA5F0',
+      typeAccent: '#1789E5',
       typeBadge: 'RADAR // SYNC',
       fields: [
         {
@@ -265,7 +265,7 @@ export const beyondTheScreenConfig: RegistrationDeckConfig = {
       title: 'FINAL CHECK',
       subtitle: 'Review your complete deck before locking registration.',
       artworkKey: 'squirtle-card.png',
-      typeAccent: '#0DA5F0',
+      typeAccent: '#1789E5',
       typeBadge: 'DECK // LOCKED',
       fields: [],
     },

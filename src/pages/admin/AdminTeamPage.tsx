@@ -126,7 +126,7 @@ export const AdminTeamPage: React.FC = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#1E293B] pb-6">
         <div>
-          <div className="font-mono text-xs uppercase text-[#0DA5F0] font-bold mb-1">
+          <div className="font-mono text-xs uppercase text-[#1789E5] font-bold mb-1">
             [ TEAM & ROSTER CONTROL ]
           </div>
           <h1 className="font-heading text-3xl font-bold text-[#FFFFFF]">
@@ -153,17 +153,17 @@ export const AdminTeamPage: React.FC = () => {
           <span className="font-mono text-xs text-[#94A3B8] uppercase font-bold">
             COMMUNITY MEMBERS DIRECTORY ({members.length})
           </span>
-          <span className="font-mono text-[10px] text-[#0DA5F0]">CHANGES PERSIST TO DB IMMEDIATELY</span>
+          <span className="font-mono text-[10px] text-[#1789E5]">CHANGES PERSIST TO DB IMMEDIATELY</span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {members.map((member, index) => (
             <div
               key={`${member.name}-${index}`}
-              className="rounded-[2px] border border-[#1E293B] bg-[#090D12] p-4 flex items-start justify-between gap-3 hover:border-[#0DA5F0]/50 transition-colors"
+              className="rounded-[2px] border border-[#1E293B] bg-[#090D12] p-4 flex items-start justify-between gap-3 hover:border-[#1789E5]/50 transition-colors"
             >
               <div className="flex items-start gap-3 overflow-hidden">
-                <div className="h-12 w-12 rounded-[2px] bg-[#1E293B] border border-[#334155] overflow-hidden shrink-0 flex items-center justify-center font-bold font-mono text-[#0DA5F0]">
+                <div className="h-12 w-12 rounded-[2px] bg-[#1E293B] border border-[#334155] overflow-hidden shrink-0 flex items-center justify-center font-bold font-mono text-[#1789E5]">
                   {member.image ? (
                     <img src={member.image} alt={member.name} className="h-full w-full object-cover" />
                   ) : (
@@ -172,7 +172,7 @@ export const AdminTeamPage: React.FC = () => {
                 </div>
                 <div className="overflow-hidden">
                   <div className="font-heading text-sm font-bold text-[#FFFFFF] truncate">{member.name}</div>
-                  <div className="text-xs text-[#0DA5F0] truncate">{member.role}</div>
+                  <div className="text-xs text-[#1789E5] truncate">{member.role}</div>
                   <div className="text-[10px] font-mono text-[#64748B] mt-1 uppercase">{member.department}</div>
                 </div>
               </div>
@@ -220,7 +220,7 @@ export const AdminTeamPage: React.FC = () => {
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="e.g. Kartikay Mishra"
-                  className="w-full rounded-[2px] border border-[#1E293B] bg-[#090D12] px-3 py-2 text-sm text-[#F8FAFC] focus:border-[#0DA5F0] focus:outline-none"
+                  className="w-full rounded-[2px] border border-[#1E293B] bg-[#090D12] px-3 py-2 text-sm text-[#F8FAFC] focus:border-[#1789E5] focus:outline-none"
                 />
               </div>
 
@@ -233,7 +233,7 @@ export const AdminTeamPage: React.FC = () => {
                     value={formData.role}
                     onChange={(e) => setFormData({ ...formData, role: e.target.value })}
                     placeholder="e.g. Technical Lead"
-                    className="w-full rounded-[2px] border border-[#1E293B] bg-[#090D12] px-3 py-2 text-sm text-[#F8FAFC] focus:border-[#0DA5F0] focus:outline-none"
+                    className="w-full rounded-[2px] border border-[#1E293B] bg-[#090D12] px-3 py-2 text-sm text-[#F8FAFC] focus:border-[#1789E5] focus:outline-none"
                   />
                 </div>
 
@@ -242,7 +242,7 @@ export const AdminTeamPage: React.FC = () => {
                   <select
                     value={formData.department}
                     onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                    className="w-full rounded-[2px] border border-[#1E293B] bg-[#090D12] px-3 py-2 text-sm text-[#F8FAFC] focus:border-[#0DA5F0] focus:outline-none"
+                    className="w-full rounded-[2px] border border-[#1E293B] bg-[#090D12] px-3 py-2 text-sm text-[#F8FAFC] focus:border-[#1789E5] focus:outline-none"
                   >
                     <option value="Leadership">Leadership</option>
                     <option value="Technical Core">Technical Core</option>
@@ -262,7 +262,7 @@ export const AdminTeamPage: React.FC = () => {
                   value={formData.image || ''}
                   onChange={(e) => setFormData({ ...formData, image: e.target.value })}
                   placeholder="https://... or /src/assets/..."
-                  className="w-full rounded-[2px] border border-[#1E293B] bg-[#090D12] px-3 py-2 text-sm text-[#F8FAFC] focus:border-[#0DA5F0] focus:outline-none"
+                  className="w-full rounded-[2px] border border-[#1E293B] bg-[#090D12] px-3 py-2 text-sm text-[#F8FAFC] focus:border-[#1789E5] focus:outline-none"
                 />
               </div>
 
@@ -274,7 +274,7 @@ export const AdminTeamPage: React.FC = () => {
                     value={formData.linkedin || ''}
                     onChange={(e) => setFormData({ ...formData, linkedin: e.target.value })}
                     placeholder="https://linkedin.com/in/..."
-                    className="w-full rounded-[2px] border border-[#1E293B] bg-[#090D12] px-3 py-2 text-sm text-[#F8FAFC] focus:border-[#0DA5F0] focus:outline-none"
+                    className="w-full rounded-[2px] border border-[#1E293B] bg-[#090D12] px-3 py-2 text-sm text-[#F8FAFC] focus:border-[#1789E5] focus:outline-none"
                   />
                 </div>
                 <div className="space-y-1">
@@ -284,7 +284,7 @@ export const AdminTeamPage: React.FC = () => {
                     value={formData.github || ''}
                     onChange={(e) => setFormData({ ...formData, github: e.target.value })}
                     placeholder="https://github.com/..."
-                    className="w-full rounded-[2px] border border-[#1E293B] bg-[#090D12] px-3 py-2 text-sm text-[#F8FAFC] focus:border-[#0DA5F0] focus:outline-none"
+                    className="w-full rounded-[2px] border border-[#1E293B] bg-[#090D12] px-3 py-2 text-sm text-[#F8FAFC] focus:border-[#1789E5] focus:outline-none"
                   />
                 </div>
               </div>

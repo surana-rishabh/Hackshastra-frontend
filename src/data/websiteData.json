@@ -1,7 +1,7 @@
 {
   "siteInfo": {
-    "name": "HACKSHASTRA SRM-AP",
-    "tagline": "India's First Creator-Led Tech Community",
+    "name": "HackShastra SRM-AP",
+    "tagline": "Student Chapter",
     "subTagline": "Student Chapter",
     "university": "SRM University-AP",
     "location": "SRM University-AP, Neerukonda, Mangalagiri Mandal, Guntur District, Andhra Pradesh 522502",
@@ -37,11 +37,11 @@
   },
   "about": {
     "heroTagline": "About HackShastra SRM-AP",
-    "heroTitle": "India's First Creator-Led Tech Community",
-    "heroDescription": "Built at the intersection of learning, innovation, and student empowerment. Founded by Uday Sharma, we're not just a community — we're a movement.",
+    "heroTitle": "Architecting the Future of Engineering",
+    "heroDescription": "At HackShastra SRM-AP, we bring students together to build, innovate, and master technology. From hands-on workshops to national hackathons, we bridge learning with real-world execution.",
     "visionTagline": "Our Vision",
-    "visionTitle": "Breaking barriers, building bold, unlocking opportunities for all.",
-    "visionDescription": "At HackShastra SRM University-AP, we create a platform where ideas are shared without fear, teams are built across departments, careers are launched from side-projects, and students become leaders one build at a time.",
+    "visionTitle": "Empowering Student Builders & Innovators",
+    "visionDescription": "Creating an ecosystem where ideas turn into reality. We help students gain hands-on technical skills, build real projects, and become future engineering leaders.",
     "visionBullets": [
       "Host diverse hackathon formats: 8/24/36/48-hour events",
       "Build a self-sustaining tech community with national visibility",
@@ -82,20 +82,6 @@
         "date": "16 September 2026",
         "time": "2:30 PM – 5:30 PM",
         "location": "CV 402, SRM University-AP"
-      },
-      {
-        "title": "HackShastra National Hackathon 2026",
-        "subtitle": "India's Premier 36-Hour Student Hackathon & Innovation Codefest | Registrations Opening Soon",
-        "image": "/events/blockforge.png",
-        "completed": false,
-        "announcement": "Announcing Soon"
-      },
-      {
-        "title": "AI & Web3 Innovation Bootcamp 2026",
-        "subtitle": "Hands-on Masterclasses, Live Project Build Sessions & Industry Creator Mentorship",
-        "image": "/events/new.png",
-        "completed": false,
-        "announcement": "Registrations Opening Soon"
       }
     ],
     "completed": [

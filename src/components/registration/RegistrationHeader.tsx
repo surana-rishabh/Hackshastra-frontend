@@ -16,10 +16,6 @@ export const RegistrationHeader: React.FC<RegistrationHeaderProps> = ({
       {/* Top telemetry tag */}
       <div className="flex items-center justify-center gap-2 font-mono text-xs uppercase text-amber-300 font-bold">
         <span>POKÉMON TOURNAMENT REGISTRATION</span>
-        <span>•</span>
-        <span className="inline-flex items-center gap-1 text-emerald-400 bg-emerald-950/80 px-2 py-0.5 rounded-full text-[10px] border border-emerald-500/40">
-          <Radio className="h-3 w-3 animate-pulse" /> ARENA LIVE
-        </span>
       </div>
 
       {/* Main Title */}

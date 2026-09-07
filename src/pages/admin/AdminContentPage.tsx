@@ -10,7 +10,7 @@ import {
 import { Button } from '@/components/ui/Button';
 
 export const AdminContentPage: React.FC = () => {
-  const [heroTagline, setHeroTagline] = useState("India's First Creator-Led Tech Community");
+  const [heroTagline, setHeroTagline] = useState("Where Ancient Wisdom Fuels Tomorrow's Architecture");
   const [heroDesc, setHeroDesc] = useState("We are a community of students driven by curiosity and a shared passion for technology.");
   const [statsReach, setStatsReach] = useState("300K+");
   const [statsMembers, setStatsMembers] = useState("2,600+");
@@ -65,7 +65,7 @@ export const AdminContentPage: React.FC = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#1E293B] pb-6">
         <div>
-          <div className="font-mono text-xs uppercase text-[#0DA5F0] font-bold mb-1">
+          <div className="font-mono text-xs uppercase text-[#1789E5] font-bold mb-1">
             [ LIVE NO-CODE CMS ]
           </div>
           <h1 className="font-heading text-3xl font-bold text-[#FFFFFF]">
@@ -83,7 +83,7 @@ export const AdminContentPage: React.FC = () => {
 
       <form onSubmit={handleSave} className="space-y-6">
         <div className="rounded-[2px] border border-[#1E293B] bg-[#0D121A] p-6 space-y-4">
-          <div className="font-mono text-xs text-[#0DA5F0] uppercase font-bold border-b border-[#1E293B] pb-3">
+          <div className="font-mono text-xs text-[#1789E5] uppercase font-bold border-b border-[#1E293B] pb-3">
             [ 01 / HERO STATEMENT ]
           </div>
 
@@ -93,7 +93,7 @@ export const AdminContentPage: React.FC = () => {
               type="text"
               value={heroTagline}
               onChange={(e) => setHeroTagline(e.target.value)}
-              className="w-full rounded-[2px] border border-[#1E293B] bg-[#090D12] px-3 py-2 text-sm text-[#F8FAFC] focus:border-[#0DA5F0] focus:outline-none"
+              className="w-full rounded-[2px] border border-[#1E293B] bg-[#090D12] px-3 py-2 text-sm text-[#F8FAFC] focus:border-[#1789E5] focus:outline-none"
             />
           </div>
 
@@ -103,13 +103,13 @@ export const AdminContentPage: React.FC = () => {
               rows={4}
               value={heroDesc}
               onChange={(e) => setHeroDesc(e.target.value)}
-              className="w-full rounded-[2px] border border-[#1E293B] bg-[#090D12] px-3 py-2 text-sm text-[#F8FAFC] focus:border-[#0DA5F0] focus:outline-none"
+              className="w-full rounded-[2px] border border-[#1E293B] bg-[#090D12] px-3 py-2 text-sm text-[#F8FAFC] focus:border-[#1789E5] focus:outline-none"
             />
           </div>
         </div>
 
         <div className="rounded-[2px] border border-[#1E293B] bg-[#0D121A] p-6 space-y-4">
-          <div className="font-mono text-xs text-[#0DA5F0] uppercase font-bold border-b border-[#1E293B] pb-3">
+          <div className="font-mono text-xs text-[#1789E5] uppercase font-bold border-b border-[#1E293B] pb-3">
             [ 02 / TELEMETRY METRIC COUNTERS ]
           </div>
 
@@ -120,7 +120,7 @@ export const AdminContentPage: React.FC = () => {
                 type="text"
                 value={statsReach}
                 onChange={(e) => setStatsReach(e.target.value)}
-                className="w-full rounded-[2px] border border-[#1E293B] bg-[#090D12] px-3 py-2 text-sm text-[#F8FAFC] focus:border-[#0DA5F0] focus:outline-none"
+                className="w-full rounded-[2px] border border-[#1E293B] bg-[#090D12] px-3 py-2 text-sm text-[#F8FAFC] focus:border-[#1789E5] focus:outline-none"
               />
             </div>
             <div className="space-y-1.5">
@@ -129,7 +129,7 @@ export const AdminContentPage: React.FC = () => {
                 type="text"
                 value={statsMembers}
                 onChange={(e) => setStatsMembers(e.target.value)}
-                className="w-full rounded-[2px] border border-[#1E293B] bg-[#090D12] px-3 py-2 text-sm text-[#F8FAFC] focus:border-[#0DA5F0] focus:outline-none"
+                className="w-full rounded-[2px] border border-[#1E293B] bg-[#090D12] px-3 py-2 text-sm text-[#F8FAFC] focus:border-[#1789E5] focus:outline-none"
               />
             </div>
             <div className="space-y-1.5">
@@ -138,7 +138,7 @@ export const AdminContentPage: React.FC = () => {
                 type="text"
                 value={statsPrizes}
                 onChange={(e) => setStatsPrizes(e.target.value)}
-                className="w-full rounded-[2px] border border-[#1E293B] bg-[#090D12] px-3 py-2 text-sm text-[#F8FAFC] focus:border-[#0DA5F0] focus:outline-none"
+                className="w-full rounded-[2px] border border-[#1E293B] bg-[#090D12] px-3 py-2 text-sm text-[#F8FAFC] focus:border-[#1789E5] focus:outline-none"
               />
             </div>
           </div>

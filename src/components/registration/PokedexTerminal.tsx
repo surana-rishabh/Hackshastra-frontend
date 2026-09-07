@@ -71,7 +71,7 @@ export const PokedexTerminal: React.FC<PokedexTerminalProps> = ({
       ? '#F97316'
       : formData.favouritePokemon === 'bulbasaur'
       ? '#65A30D'
-      : '#0DA5F0';
+      : '#1789E5';
 
   return (
     <div className="w-full max-w-[640px] sm:max-w-[700px] md:max-w-[760px] mx-auto z-10 select-none">
@@ -95,29 +95,11 @@ export const PokedexTerminal: React.FC<PokedexTerminalProps> = ({
           />
 
           {/* Translucent Cyber Vignette */}
-          <div
-            className="absolute inset-0"
-            style={{
-              background: `linear-gradient(180deg, rgba(6,9,14,0.65) 0%, rgba(6,9,14,0.3) 25%, rgba(6,9,14,0.88) 75%, rgba(6,9,14,0.98) 100%)`,
-            }}
-          />
+          <div className="absolute inset-0 bg-[#06090E]/80 backdrop-blur-md" />
 
           {/* Dynamic Top Ambient Aura */}
-          <div
-            className="absolute top-0 inset-x-0 h-48 opacity-30 pointer-events-none transition-colors duration-500"
-            style={{
-              background: `radial-gradient(ellipse at 50% 0%, ${activeAccent} 0%, transparent 80%)`,
-            }}
-          />
+          <div className="absolute top-0 inset-x-0 h-48 opacity-20 bg-[#1789E5]/20 backdrop-blur-sm pointer-events-none transition-colors duration-500" />
 
-          {/* Cyber HUD Grid Overlay */}
-          <div
-            className="absolute inset-0 opacity-15 pointer-events-none"
-            style={{
-              backgroundImage: `radial-gradient(${activeAccent} 1.2px, transparent 1.2px)`,
-              backgroundSize: '22px 22px',
-            }}
-          />
 
           {/* Corner Tech Brackets */}
           <div className="absolute top-3 left-3 w-4 h-4 border-t-2 border-l-2 border-white/40" />
@@ -132,7 +114,7 @@ export const PokedexTerminal: React.FC<PokedexTerminalProps> = ({
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1.5">
               <span
-                className="w-3.5 h-3.5 rounded-full shadow-[0_0_12px_#0DA5F0] animate-pulse"
+                className="w-3.5 h-3.5 rounded-full shadow-[0_0_12px_#1789E5] animate-pulse"
                 style={{ backgroundColor: activeAccent }}
               />
               <span className="w-2 h-2 rounded-full bg-amber-400" />
@@ -238,7 +220,7 @@ export const PokedexTerminal: React.FC<PokedexTerminalProps> = ({
                   type="text"
                   value={formData.fullName}
                   onChange={(val) => onFieldChange('fullName', val)}
-                  placeholder="e.g. Ash Ketchum / Rishabh Surana"
+                  placeholder="e.g. Ash Ketchum / Alex Morgan"
                   helperText="Your official full name for event accreditation"
                   error={errors.fullName}
                   required
@@ -441,12 +423,7 @@ export const PokedexTerminal: React.FC<PokedexTerminalProps> = ({
         </form>
 
         {/* Bottom Hardware Bezel Trim */}
-        <div
-          className="h-2 w-full"
-          style={{
-            background: `linear-gradient(90deg, transparent 0%, ${activeAccent} 50%, transparent 100%)`,
-          }}
-        />
+        <div className="h-1 w-full bg-[#1789E5]" />
       </motion.div>
     </div>
   );

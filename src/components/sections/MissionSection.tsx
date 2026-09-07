@@ -6,8 +6,8 @@ import { Rocket, Users, Lightbulb, Target } from 'lucide-react';
 export const MissionSection: React.FC = () => {
   const pillars = [
     {
-      title: 'Creator-Led Movement',
-      description: "India's first creator-led tech community with 300K+ reach and 2,600+ active members across universities.",
+      title: 'Builder-First Innovation',
+      description: 'A thriving national student technology chapter with 300K+ reach and 2,600+ active members across universities.',
       icon: Rocket,
     },
     {
@@ -28,15 +28,15 @@ export const MissionSection: React.FC = () => {
   ];
 
   return (
-    <section className="relative border-b border-[#E2E8F0] bg-[#FFFFFF] py-20 lg:py-28 overflow-hidden">
+    <section className="relative border-b border-[#85b5cd] bg-[#FCF6D9] py-20 lg:py-28 overflow-hidden">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <FadeUp>
-          <div className="flex items-center gap-2 font-mono text-xs uppercase text-[#0DA5F0] font-bold mb-4">
+          <div className="flex items-center gap-2 font-mono text-xs uppercase text-[#CF4B00] font-bold mb-4">
             <span>03 / PILLARS OF EXCELLENCE</span>
             <span>•</span>
             <span>[ CORE INITIATIVES ]</span>
           </div>
-          <h2 className="font-heading text-3xl sm:text-5xl font-bold tracking-tight text-[#090D12]">
+          <h2 className="font-heading text-3xl sm:text-5xl font-bold tracking-tight text-[#0F172A]">
             Building India's most accessible student-led tech ecosystem.
           </h2>
         </FadeUp>
@@ -49,25 +49,25 @@ export const MissionSection: React.FC = () => {
                 <TechBorderCard className="h-full flex flex-col justify-between group">
                   <div>
                     <div className="flex items-center justify-between mb-4">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-[2px] border border-[#E2E8F0] bg-[#F8FAFC] text-[#0DA5F0] group-hover:border-[#0DA5F0] group-hover:bg-[#0DA5F0]/10 transition-colors shadow-xs">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-[2px] border border-[#85b5cd] bg-[#FCF6D9] text-[#CF4B00] group-hover:border-[#CF4B00] group-hover:bg-[#CF4B00] group-hover:text-[#FFFFFF] transition-colors shadow-xs">
                         <Icon className="h-5 w-5" />
                       </div>
-                      <span className="font-mono text-xs text-[#94A3B8]">
+                      <span className="font-mono text-xs text-[#0F172A]/60 font-semibold">
                         0{index + 1}
                       </span>
                     </div>
 
-                    <h3 className="font-heading text-lg font-bold text-[#090D12] group-hover:text-[#0284C7] transition-colors">
+                    <h3 className="font-heading text-lg font-bold text-[#0F172A] group-hover:text-[#CF4B00] transition-colors">
                       {pillar.title}
                     </h3>
-                    <p className="mt-2 text-sm text-[#64748B] leading-relaxed">
+                    <p className="mt-2 text-sm text-[#0F172A]/80 leading-relaxed font-medium">
                       {pillar.description}
                     </p>
                   </div>
 
-                  <div className="mt-6 pt-3 border-t border-[#E2E8F0] flex items-center justify-between font-mono text-[11px] text-[#94A3B8]">
+                  <div className="mt-6 pt-3 border-t border-[#85b5cd] flex items-center justify-between font-mono text-[11px] text-[#0F172A]/70 font-semibold">
                     <span>PILLAR // HS-AP</span>
-                    <span className="text-[#0DA5F0] font-semibold">ACTIVE</span>
+                    <span className="text-[#CF4B00] font-bold">ACTIVE</span>
                   </div>
                 </TechBorderCard>
               </FadeUp>

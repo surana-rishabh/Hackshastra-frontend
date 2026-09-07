@@ -35,7 +35,7 @@ export const Marquee: React.FC<MarqueeProps> = ({
             <span className={cn('font-mono text-xs uppercase tracking-widest text-[#475569] font-medium', itemClassName)}>
               {text}
             </span>
-            <span className="mx-6 text-[#0DA5F0] font-mono text-sm font-bold">{separator}</span>
+            <span className="mx-6 text-[#1789E5] font-mono text-sm font-bold">{separator}</span>
           </div>
         ))}
       </div>

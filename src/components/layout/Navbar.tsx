@@ -59,8 +59,8 @@ export const Navbar: React.FC = () => {
       className={cn(
         'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
         scrolled
-          ? 'border-b border-[#1E293B] bg-[#090D12]/95 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.5)] backdrop-blur-md'
-          : 'border-b border-[#1E293B] bg-[#090D12] backdrop-blur-sm'
+          ? 'border-b border-[#85b5cd] bg-[#9CC6DB] shadow-md'
+          : 'border-b border-[#85b5cd] bg-[#9CC6DB]'
       )}
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -69,10 +69,9 @@ export const Navbar: React.FC = () => {
             <button
               onClick={handleBack}
               aria-label="Go back"
-              className="flex items-center gap-1.5 rounded-[2px] border border-[#334155] bg-[#1E293B]/60 px-2.5 py-1 text-xs font-mono text-[#CBD5E1] hover:border-[#0DA5F0] hover:text-[#0DA5F0] transition-colors cursor-pointer shadow-xs"
+              className="flex h-9 w-9 items-center justify-center rounded-[2px] border border-[#CF4B00] bg-[#CF4B00] text-[#FFFFFF] hover:bg-[#b04000] transition-colors cursor-pointer shadow-xs font-bold"
             >
-              <ArrowLeft className="h-3.5 w-3.5" />
-              <span>BACK</span>
+              <ArrowLeft className="h-4 w-4" />
             </button>
           )}
 
@@ -80,13 +79,13 @@ export const Navbar: React.FC = () => {
             <img
               src="/logo.svg"
               alt="HackShastra Logo"
-              className="h-7 w-7 transition-transform duration-300 group-hover:scale-105"
+              className="h-6 w-6 transition-transform duration-300 group-hover:scale-105"
             />
             <div className="flex flex-col">
-              <span className="font-heading text-sm font-bold tracking-tight text-[#FFFFFF] group-hover:text-[#0DA5F0] transition-colors">
+              <span className="font-heading text-sm font-bold tracking-tight text-[#0F172A] group-hover:text-[#CF4B00] transition-colors">
                 {siteData.siteInfo.name}
               </span>
-              <span className="font-mono text-[9px] uppercase tracking-wider text-[#94A3B8]">
+              <span className="font-mono text-[9px] uppercase tracking-wider text-[#0F172A]/80 font-semibold">
                 {siteData.siteInfo.subTagline}
               </span>
             </div>
@@ -104,14 +103,14 @@ export const Navbar: React.FC = () => {
                 className={cn(
                   'relative px-3 py-1.5 font-mono text-xs uppercase tracking-wider transition-colors duration-200',
                   isActive
-                    ? 'text-[#0DA5F0] font-bold'
-                    : 'text-[#94A3B8] hover:text-[#FFFFFF]'
+                    ? 'text-[#CF4B00] font-black'
+                    : 'text-[#0F172A] hover:text-[#CF4B00]'
                 )}
               >
-                <span className="text-[#64748B] text-[10px] mr-1">{indexStr}</span>
+                <span className="text-[#0F172A]/60 text-[10px] mr-1">{indexStr}</span>
                 <span>{link.label}</span>
                 {isActive && (
-                  <span className="absolute bottom-0 left-3 right-3 h-[2px] bg-[#0DA5F0] shadow-[0_0_8px_#0DA5F0]" />
+                  <span className="absolute bottom-0 left-3 right-3 h-[2.5px] bg-[#CF4B00]" />
                 )}
               </Link>
             );
@@ -130,7 +129,7 @@ export const Navbar: React.FC = () => {
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Toggle Navigation Menu"
             aria-expanded={mobileMenuOpen}
-            className="md:hidden flex h-9 w-9 items-center justify-center rounded-[2px] border border-[#334155] bg-[#1E293B]/60 text-[#FFFFFF] hover:border-[#0DA5F0] hover:text-[#0DA5F0] transition-colors cursor-pointer"
+            className="md:hidden flex h-9 w-9 items-center justify-center rounded-[2px] border border-[#CF4B00] bg-[#CF4B00] text-[#FFFFFF] hover:bg-[#b04000] transition-colors cursor-pointer"
           >
             {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
@@ -138,7 +137,7 @@ export const Navbar: React.FC = () => {
       </div>
 
       {mobileMenuOpen && (
-        <div className="fixed inset-0 top-16 z-40 bg-[#090D12]/98 backdrop-blur-xl md:hidden flex flex-col justify-between p-6 border-t border-[#1E293B] animate-in fade-in duration-200">
+        <div className="fixed inset-0 top-16 z-40 bg-[#9CC6DB] md:hidden flex flex-col justify-between p-6 border-t border-[#85b5cd] animate-in fade-in duration-200">
           <nav className="flex flex-col gap-3">
             {siteData.navigation.links.map((link, idx) => {
               const isActive = location.pathname === link.href;
@@ -151,21 +150,21 @@ export const Navbar: React.FC = () => {
                   className={cn(
                     'flex items-center justify-between py-3 px-4 rounded-[2px] border transition-colors',
                     isActive
-                      ? 'border-[#0DA5F0] bg-[#0DA5F0]/15 text-[#0DA5F0]'
-                      : 'border-[#1E293B] bg-[#0F172A]/80 text-[#F1F5F9] hover:border-[#0DA5F0]'
+                      ? 'border-[#CF4B00] bg-[#CF4B00] text-[#FFFFFF]'
+                      : 'border-[#85b5cd] bg-[#FCF6D9] text-[#0F172A] hover:border-[#CF4B00]'
                   )}
                 >
                   <div className="flex items-center gap-3 font-mono text-sm">
-                    <span className="text-[#64748B] text-xs">{indexStr}</span>
-                    <span className="font-semibold uppercase">{link.label}</span>
+                    <span className={isActive ? 'text-[#FFFFFF]/80 text-xs' : 'text-[#0F172A]/60 text-xs'}>{indexStr}</span>
+                    <span className="font-bold uppercase">{link.label}</span>
                   </div>
-                  <ArrowUpRight className="h-4 w-4 opacity-70 text-[#0DA5F0]" />
+                  <ArrowUpRight className={cn('h-4 w-4', isActive ? 'text-[#FFFFFF]' : 'text-[#CF4B00]')} />
                 </Link>
               );
             })}
           </nav>
 
-          <div className="pt-6 border-t border-[#1E293B] flex flex-col gap-4">
+          <div className="pt-6 border-t border-[#85b5cd] flex flex-col gap-4">
             <Link to={siteData.navigation.joinHref} onClick={() => setMobileMenuOpen(false)}>
               <Button variant="primary" size="lg" className="w-full justify-between font-mono">
                 <span>{siteData.navigation.joinButtonText}</span>
@@ -173,7 +172,7 @@ export const Navbar: React.FC = () => {
               </Button>
             </Link>
 
-            <div className="flex items-center justify-between text-xs font-mono text-[#64748B]">
+            <div className="flex items-center justify-between text-xs font-mono text-[#0F172A]/80 font-semibold">
               <span>SRM UNIVERSITY-AP</span>
               <span>{siteData.siteCoordinates.display}</span>
             </div>

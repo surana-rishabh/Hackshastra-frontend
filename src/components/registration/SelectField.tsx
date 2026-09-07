@@ -35,7 +35,7 @@ export const SelectField: React.FC<SelectFieldProps> = ({
   helperText,
   error,
   required = false,
-  typeAccent = '#0DA5F0',
+  typeAccent = '#1789E5',
   className,
 }) => {
   const [isFocused, setIsFocused] = React.useState(false);

@@ -9,7 +9,7 @@ export const ProtectedAdminRoute: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#090D12] flex items-center justify-center text-[#0DA5F0]">
+      <div className="min-h-screen bg-[#090D12] flex items-center justify-center text-[#1789E5]">
         <Loader2 className="h-8 w-8 animate-spin" />
       </div>
     );

@@ -47,7 +47,7 @@ const STARTERS: StarterData[] = [
     name: 'SQUIRTLE',
     number: '#007',
     type: 'WATER',
-    typeColor: '#0DA5F0',
+    typeColor: '#1789E5',
     cardImage: squirtleCardImg,
     stats: { hp: 44, attack: 48, defense: 65 },
   },
@@ -127,7 +127,7 @@ export const StarterPartnerRevealGrid: React.FC<StarterPartnerRevealGridProps> =
               >
                 {/* 1. CARD BACK (Initial Face-Down Mystery View) */}
                 <div
-                  className="absolute inset-0 w-full h-full rounded-[10px] sm:rounded-[12px] overflow-hidden border-2 border-amber-400/40 bg-black/90 shadow-xl"
+                  className="absolute inset-0 w-full h-full rounded-[10px] sm:rounded-[12px] overflow-hidden border-2 border-amber-400/50 bg-black shadow-xl"
                   style={{
                     backfaceVisibility: 'hidden',
                     WebkitBackfaceVisibility: 'hidden',
@@ -138,77 +138,51 @@ export const StarterPartnerRevealGrid: React.FC<StarterPartnerRevealGridProps> =
                     alt="Mystery Card Back"
                     className="w-full h-full object-cover select-none"
                   />
-                  {/* Holographic gloss overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/10 via-white/20 to-transparent pointer-events-none" />
                   <div className="absolute inset-x-0 bottom-1 sm:bottom-2 text-center">
-                    <span className="font-pokemon text-[8px] sm:text-[9px] uppercase text-[#FFCC03] bg-black/85 px-2 py-0.5 rounded-full border border-amber-400/50 backdrop-blur-sm shadow-md">
+                    <span className="font-pokemon text-[8px] sm:text-[9px] uppercase text-[#FFCC03] bg-black/90 px-2 py-0.5 rounded-full border border-amber-400/50 shadow-md">
                       TAP TO REVEAL
                     </span>
                   </div>
                 </div>
 
-                {/* 2. CARD FRONT (Revealed Face-Up View) */}
+                {/* 2. CARD FRONT (Revealed Face-Up View - Clean & Crisp without glassmorphism) */}
                 <div
                   className={cn(
-                    'absolute inset-0 w-full h-full rounded-[10px] sm:rounded-[12px] overflow-hidden border-2 shadow-2xl transition-all duration-300 flex flex-col justify-between',
+                    'absolute inset-0 w-full h-full rounded-[10px] sm:rounded-[12px] overflow-hidden border-2 shadow-2xl transition-all duration-300 flex flex-col justify-between bg-black',
                     isSelected
-                      ? 'border-white ring-2 shadow-2xl opacity-100 z-20 scale-[1.02]'
-                      : 'border-white/20 opacity-60'
+                      ? 'border-white ring-2 ring-white/60 opacity-100 z-20 scale-[1.03]'
+                      : 'border-white/20 opacity-60 hover:opacity-85'
                   )}
                   style={{
                     transform: 'rotateY(180deg)',
                     backfaceVisibility: 'hidden',
                     WebkitBackfaceVisibility: 'hidden',
-                    borderColor: isSelected ? starter.typeColor : undefined,
+                    borderColor: isSelected ? starter.typeColor : 'rgba(255,255,255,0.2)',
                     boxShadow: isSelected
-                      ? `0 0 22px ${starter.typeColor}90, inset 0 0 14px ${starter.typeColor}50`
-                      : undefined,
+                      ? `0 0 20px ${starter.typeColor}, 0 4px 14px rgba(0,0,0,0.8)`
+                      : '0 4px 10px rgba(0,0,0,0.5)',
                   }}
                 >
                   {/* Card Artwork */}
                   <img
                     src={starter.cardImage}
                     alt={starter.name}
-                    className="absolute inset-0 w-full h-full object-cover object-top select-none"
+                    className="absolute inset-0 w-full h-full object-cover select-none"
                   />
 
-                  {/* Dark gradient for text legibility */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-black/40 pointer-events-none" />
-
-                  {/* Top Header inside Card */}
-                  <div className="relative z-10 p-1 flex items-center justify-between">
-                    <span className="font-mono text-[7px] sm:text-[8px] font-black px-1.5 py-0.2 rounded bg-black/70 text-white border border-white/20">
-                      {starter.number}
-                    </span>
-
-                    {isSelected && (
+                  {/* Selected Badge Indicator */}
+                  {isSelected && (
+                    <div className="relative z-10 p-1 sm:p-1.5 flex items-center justify-end">
                       <motion.div
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
-                        className="w-3.5 h-3.5 rounded-full flex items-center justify-center text-black font-black shadow-md"
+                        className="w-4 h-4 sm:w-5 sm:h-5 rounded-full flex items-center justify-center text-black font-black shadow-lg"
                         style={{ backgroundColor: starter.typeColor }}
                       >
-                        <Check className="w-2.5 h-2.5 stroke-[3]" />
+                        <Check className="w-2.5 h-2.5 sm:w-3 sm:h-3 stroke-[3]" />
                       </motion.div>
-                    )}
-                  </div>
-
-                  {/* Bottom Stats Banner inside Card */}
-                  <div className="relative z-10 p-1 text-center bg-black/75 backdrop-blur-sm border-t border-white/10">
-                    <div className="flex items-center justify-center gap-1">
-                      {getElementalIcon(starter.id)}
-                      <span
-                        className="font-pokemon text-[10px] sm:text-[11px] tracking-wider uppercase truncate"
-                        style={{ color: starter.typeColor }}
-                      >
-                        {starter.name}
-                      </span>
                     </div>
-
-                    <div className="font-mono text-[7px] sm:text-[8px] text-white/70 uppercase font-bold">
-                      {isSelected ? '★ PARTNER ★' : starter.type}
-                    </div>
-                  </div>
+                  )}
                 </div>
               </motion.div>
             </motion.div>
@@ -221,7 +195,7 @@ export const StarterPartnerRevealGrid: React.FC<StarterPartnerRevealGridProps> =
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="p-2 sm:p-2.5 rounded-[10px] bg-black/80 backdrop-blur-xl border border-amber-400/40 flex items-center justify-between text-left shadow-lg"
+          className="p-2 sm:p-2.5 rounded-[10px] bg-[#0A0F14] border border-amber-400/40 flex items-center justify-between text-left shadow-lg"
         >
           {(() => {
             const current = STARTERS.find((s) => s.id === selectedPokemon) || STARTERS[0];

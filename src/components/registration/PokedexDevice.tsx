@@ -91,6 +91,10 @@ export const PokedexDevice: React.FC<PokedexDeviceProps> = ({
       ? '#0EA5E9'
       : '#10B981';
 
+  const [initialOtpEmail, setInitialOtpEmail] = React.useState<string>('');
+  const [emailChangedHalfway, setEmailChangedHalfway] = React.useState<boolean>(false);
+  const [failedAttempts, setFailedAttempts] = React.useState<number>(0);
+
   // Handle field change and clear step errors
   const handleFieldChange = (field: keyof RegistrationFormData, value: string) => {
     onFieldChange(field, value);
@@ -100,11 +104,22 @@ export const PokedexDevice: React.FC<PokedexDeviceProps> = ({
       delete next[field];
       return next;
     });
+
     if (field === 'email') {
       setOtpError(null);
       setOtpSuccessMessage(null);
-      if (isEmailVerified) setIsEmailVerified(false);
-      if (isOtpRequested) setIsOtpRequested(false);
+
+      // Detect if email was changed halfway through verification
+      if (isOtpRequested || isEmailVerified) {
+        if (value.trim().toLowerCase() !== initialOtpEmail.trim().toLowerCase()) {
+          setEmailChangedHalfway(true);
+          setIsEmailVerified(false);
+          setIsOtpRequested(false);
+          setOtpCode('');
+          setFailedAttempts(0);
+          setOtpError('Security Alert: Email address was modified halfway through verification. Session cache destroyed. Please refresh the page and try again.');
+        }
+      }
     }
   };
 
@@ -113,6 +128,7 @@ export const PokedexDevice: React.FC<PokedexDeviceProps> = ({
     const emailVal = (formData.email || '').trim().toLowerCase();
     setOtpError(null);
     setOtpSuccessMessage(null);
+    setEmailChangedHalfway(false);
 
     if (!emailVal) {
       const msg = 'Please enter your SRM University-AP email address';
@@ -153,8 +169,10 @@ export const PokedexDevice: React.FC<PokedexDeviceProps> = ({
 
       if (res.success || res.data) {
         setIsOtpRequested(true);
+        setInitialOtpEmail(emailVal);
         setResendCooldown(45);
-        setOtpSuccessMessage('6-digit OTP dispatched to your university inbox!');
+        setFailedAttempts(0);
+        setOtpSuccessMessage(res.message || '6-digit OTP dispatched to your university inbox!');
       } else {
         throw new Error(res.message || 'Failed to dispatch verification OTP');
       }
@@ -167,7 +185,7 @@ export const PokedexDevice: React.FC<PokedexDeviceProps> = ({
     }
   };
 
-  // Verify 6-digit OTP with Backend
+  // Verify 6-digit OTP with 3-attempt cache destruction
   const handleVerifyOtp = async () => {
     setOtpError(null);
     const trimmedOtp = otpCode.trim();
@@ -184,8 +202,9 @@ export const PokedexDevice: React.FC<PokedexDeviceProps> = ({
         otp: trimmedOtp,
       });
 
-      if (res.success || res.data?.verified) {
+      if (res.success && res.data?.verified) {
         setIsEmailVerified(true);
+        setFailedAttempts(0);
         const token = res.data?.verificationProofToken || '';
         setVerificationProofToken(token);
         setOtpSuccessMessage('SRM-AP Identity verified! You may proceed to Gym Clearance.');
@@ -195,7 +214,19 @@ export const PokedexDevice: React.FC<PokedexDeviceProps> = ({
           return next;
         });
       } else {
-        throw new Error(res.message || 'Invalid verification code');
+        const attempts = failedAttempts + 1;
+        setFailedAttempts(attempts);
+
+        if (res.data?.attemptsExceeded || attempts >= 3) {
+          // Destroy session cache after 3 failed attempts
+          setIsOtpRequested(false);
+          setOtpCode('');
+          setIsEmailVerified(false);
+          setFailedAttempts(0);
+          setOtpError('SECURITY ALERT: 3 failed OTP attempts detected. Email session cache destroyed. Please refresh or re-enter your email to request a new code.');
+        } else {
+          setOtpError(res.message || `Invalid 6-digit OTP code. ${3 - attempts} attempt(s) remaining before security cache destruction.`);
+        }
       }
     } catch (err: any) {
       console.error('OTP Verify error:', err);
@@ -326,11 +357,11 @@ export const PokedexDevice: React.FC<PokedexDeviceProps> = ({
         initial={{ opacity: 0, scale: 0.96, y: 15 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.5, ease: 'easeOut' }}
-        className="relative rounded-[24px] sm:rounded-[30px] bg-gradient-to-b from-[#DC2626] via-[#B91C1C] to-[#881337] p-2.5 sm:p-3.5 text-white shadow-[0_20px_50px_rgba(0,0,0,0.85),0_0_30px_rgba(220,38,38,0.35)] border-2 sm:border-3 border-[#EF4444]/60 ring-1 ring-black/40 overflow-hidden font-mono"
+        className="relative rounded-[24px] sm:rounded-[30px] bg-[#B91C1C] p-2.5 sm:p-3.5 text-white shadow-[0_20px_50px_rgba(0,0,0,0.85),0_0_30px_rgba(220,38,38,0.35)] border-2 sm:border-3 border-[#EF4444]/60 ring-1 ring-black/40 overflow-hidden font-mono"
       >
-        {/* Hardware Metallic Specular Highlights */}
-        <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent pointer-events-none" />
-        <div className="absolute top-0 inset-x-0 h-0.5 bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+        {/* Hardware Specular Highlights */}
+        <div className="absolute inset-0 bg-white/10 backdrop-blur-[1px] pointer-events-none" />
+        <div className="absolute top-0 inset-x-0 h-0.5 bg-white/40" />
 
         {/* 1. TOP POKÉDEX HARDWARE BEZEL (Scanner Lens & Indicators) */}
         <div className="relative pb-2 flex items-center justify-between px-1 sm:px-2">
@@ -339,7 +370,7 @@ export const PokedexDevice: React.FC<PokedexDeviceProps> = ({
             {/* Primary Optical Scanner Lens */}
             <div className="relative flex items-center justify-center">
               <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/90 p-0.5 shadow-md flex items-center justify-center">
-                <div className="w-full h-full rounded-full bg-gradient-to-br from-cyan-300 via-blue-500 to-blue-900 shadow-[0_0_10px_#0DA5F0] flex items-center justify-center border border-white/60 relative overflow-hidden">
+                <div className="w-full h-full rounded-full bg-[#1789E5] shadow-[0_0_10px_#1789E5] flex items-center justify-center border border-white/60 relative overflow-hidden">
                   <div className="absolute top-0.5 left-0.5 w-2 h-1 rounded-full bg-white/70 blur-[0.5px]" />
                   <div className="w-2.5 h-2.5 rounded-full bg-cyan-200/50 animate-pulse" />
                 </div>
@@ -367,14 +398,6 @@ export const PokedexDevice: React.FC<PokedexDeviceProps> = ({
 
         {/* 2. POKÉDEX HOLOGRAPHIC TRANSLUCENT SCREEN (Step-by-Step Questions) */}
         <div className="relative rounded-[16px] sm:rounded-[18px] bg-[#0A0F14]/80 backdrop-blur-2xl border-2 border-amber-400/30 shadow-[inset_0_0_20px_rgba(245,158,11,0.12),0_0_15px_rgba(0,0,0,0.6)] overflow-hidden">
-          {/* Holographic Subtle Scanlines */}
-          <div
-            className="absolute inset-0 opacity-10 pointer-events-none"
-            style={{
-              backgroundImage: `linear-gradient(rgba(245,158,11,0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(245,158,11,0.2) 1px, transparent 1px)`,
-              backgroundSize: '16px 16px',
-            }}
-          />
 
           {/* Screen Top Status Bar */}
           <div className="relative z-10 px-3 sm:px-4 py-1.5 bg-black/75 backdrop-blur-xl border-b border-amber-400/20 flex items-center justify-between text-[11px] font-mono">
@@ -508,7 +531,7 @@ export const PokedexDevice: React.FC<PokedexDeviceProps> = ({
                       type="text"
                       value={formData.fullName}
                       onChange={(val) => handleFieldChange('fullName', val)}
-                      placeholder="e.g. Red / Ash / Rishabh Surana"
+                      placeholder="e.g. Red / Ash / Alex Morgan"
                       helperText="Official name for Trainer Card"
                       error={stepErrors.fullName || errors.fullName}
                       required

@@ -71,7 +71,7 @@ export const AdminDashboardPage: React.FC = () => {
       value: stats.eventsCount,
       label: 'Scheduled in Database',
       icon: Calendar,
-      color: 'text-[#0DA5F0]',
+      color: 'text-[#1789E5]',
       link: '/admin/events',
       linkText: 'MANAGE EVENTS',
     },
@@ -100,7 +100,7 @@ export const AdminDashboardPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#1E293B] pb-6">
         <div>
-          <div className="flex items-center gap-2 font-mono text-xs uppercase text-[#0DA5F0] font-bold mb-1">
+          <div className="flex items-center gap-2 font-mono text-xs uppercase text-[#1789E5] font-bold mb-1">
             <span>COMMAND CONSOLE</span>
             <span>•</span>
             <span className="flex items-center gap-1 text-emerald-400">
@@ -114,7 +114,7 @@ export const AdminDashboardPage: React.FC = () => {
 
         <div className="flex items-center gap-3">
           <div className="px-3 py-1.5 rounded-[2px] bg-[#1E293B] border border-[#334155] font-mono text-xs text-[#94A3B8] flex items-center gap-2">
-            <Database className="h-3.5 w-3.5 text-[#0DA5F0]" />
+            <Database className="h-3.5 w-3.5 text-[#1789E5]" />
             <span>DB: {stats.dbStatus}</span>
           </div>
         </div>
@@ -127,7 +127,7 @@ export const AdminDashboardPage: React.FC = () => {
           return (
             <div
               key={card.title}
-              className="rounded-[2px] border border-[#1E293B] bg-[#0D121A] p-6 flex flex-col justify-between shadow-xs hover:border-[#0DA5F0]/50 transition-all"
+              className="rounded-[2px] border border-[#1E293B] bg-[#0D121A] p-6 flex flex-col justify-between shadow-xs hover:border-[#1789E5]/50 transition-all"
             >
               <div>
                 <div className="flex items-center justify-between mb-4">
@@ -149,7 +149,7 @@ export const AdminDashboardPage: React.FC = () => {
               <div className="mt-6 pt-4 border-t border-[#1E293B]">
                 <Link
                   to={card.link}
-                  className="font-mono text-xs text-[#0DA5F0] hover:text-[#38BDF8] flex items-center justify-between font-bold"
+                  className="font-mono text-xs text-[#1789E5] hover:text-[#38BDF8] flex items-center justify-between font-bold"
                 >
                   <span>{card.linkText}</span>
                   <ArrowUpRight className="h-4 w-4" />
@@ -163,7 +163,7 @@ export const AdminDashboardPage: React.FC = () => {
       {/* Quick Launchpad & Actions */}
       <div className="rounded-[2px] border border-[#1E293B] bg-[#0D121A] p-6 space-y-6">
         <div className="flex items-center justify-between border-b border-[#1E293B] pb-4">
-          <div className="font-mono text-xs text-[#0DA5F0] font-bold uppercase tracking-wider">
+          <div className="font-mono text-xs text-[#1789E5] font-bold uppercase tracking-wider">
             [ DIRECT DATABASE ACTIONS ]
           </div>
           <span className="text-xs font-mono text-[#64748B]">Instant sync across all clients</span>
@@ -177,13 +177,13 @@ export const AdminDashboardPage: React.FC = () => {
             </Button>
           </Link>
           <Link to="/admin/team">
-            <Button variant="outline" size="default" className="w-full justify-between font-mono text-xs border-[#334155] text-[#F8FAFC] hover:border-[#0DA5F0] hover:bg-[#0DA5F0]/10">
+            <Button variant="outline" size="default" className="w-full justify-between font-mono text-xs border-[#334155] text-[#F8FAFC] hover:border-[#1789E5] hover:bg-[#1789E5]/10">
               <span>+ ADD MEMBER</span>
               <Users className="h-4 w-4" />
             </Button>
           </Link>
           <Link to="/admin/contact">
-            <Button variant="outline" size="default" className="w-full justify-between font-mono text-xs border-[#334155] text-[#F8FAFC] hover:border-[#0DA5F0] hover:bg-[#0DA5F0]/10">
+            <Button variant="outline" size="default" className="w-full justify-between font-mono text-xs border-[#334155] text-[#F8FAFC] hover:border-[#1789E5] hover:bg-[#1789E5]/10">
               <span>CHECK INQUIRIES</span>
               <MessageSquare className="h-4 w-4" />
             </Button>

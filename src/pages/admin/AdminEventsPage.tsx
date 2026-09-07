@@ -91,6 +91,9 @@ export const AdminEventsPage: React.FC = () => {
 
   useEffect(() => {
     fetchEvents();
+    const handleSync = () => fetchEvents();
+    window.addEventListener('hackshastra-db-sync', handleSync);
+    return () => window.removeEventListener('hackshastra-db-sync', handleSync);
   }, []);
 
   const handleOpenCreate = () => {
@@ -162,7 +165,7 @@ export const AdminEventsPage: React.FC = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#1E293B] pb-6">
         <div>
-          <div className="font-mono text-xs uppercase text-[#0DA5F0] font-bold mb-1">
+          <div className="font-mono text-xs uppercase text-[#1789E5] font-bold mb-1">
             [ DATABASE EVENT HUB ]
           </div>
           <h1 className="font-heading text-3xl font-bold text-[#FFFFFF]">
@@ -187,7 +190,7 @@ export const AdminEventsPage: React.FC = () => {
       <div className="rounded-[2px] border border-[#1E293B] bg-[#0D121A] overflow-hidden">
         <div className="p-4 border-b border-[#1E293B] font-mono text-xs text-[#94A3B8] uppercase flex items-center justify-between font-bold">
           <span>SCHEDULED EVENTS ({events.length})</span>
-          <span className="text-[10px] text-[#0DA5F0]">REALTIME POSTGRESQL SYNC</span>
+          <span className="text-[10px] text-[#1789E5]">REALTIME POSTGRESQL SYNC</span>
         </div>
 
         {events.length === 0 ? (
@@ -201,7 +204,7 @@ export const AdminEventsPage: React.FC = () => {
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <span className="font-heading text-lg font-bold text-[#FFFFFF]">{ev.title}</span>
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#0DA5F0]/10 text-[#0DA5F0] border border-[#0DA5F0]/30 font-semibold">
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#1789E5]/10 text-[#1789E5] border border-[#1789E5]/30 font-semibold">
                       {ev.event_type || ev.eventType || 'EVENT'}
                     </span>
                     <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-950/60 text-emerald-400 border border-emerald-800">
@@ -211,10 +214,10 @@ export const AdminEventsPage: React.FC = () => {
                   <p className="text-xs text-[#94A3B8] max-w-xl">{ev.description || ev.subtitle}</p>
                   <div className="flex items-center gap-4 text-[11px] font-mono text-[#64748B] pt-1">
                     <span className="flex items-center gap-1">
-                      <Calendar className="h-3 w-3 text-[#0DA5F0]" /> {ev.start_date ? new Date(ev.start_date).toLocaleDateString() : 'Upcoming 2026'}
+                      <Calendar className="h-3 w-3 text-[#1789E5]" /> {ev.start_date ? new Date(ev.start_date).toLocaleDateString() : 'Upcoming 2026'}
                     </span>
                     <span className="flex items-center gap-1">
-                      <MapPin className="h-3 w-3 text-[#0DA5F0]" /> {ev.location || 'SRM University-AP'}
+                      <MapPin className="h-3 w-3 text-[#1789E5]" /> {ev.location || 'SRM University-AP'}
                     </span>
                   </div>
                 </div>
@@ -224,12 +227,12 @@ export const AdminEventsPage: React.FC = () => {
                     onClick={() => handleOpenRegistrations(ev)}
                     variant="outline"
                     size="sm"
-                    className="font-mono text-xs border-[#0DA5F0]/40 text-[#0DA5F0] hover:bg-[#0DA5F0]/10"
+                    className="font-mono text-xs border-[#1789E5]/40 text-[#1789E5] hover:bg-[#1789E5]/10"
                   >
                     <Users className="h-3.5 w-3.5 mr-1" />
                     <span>REGISTRATIONS</span>
                     {ev.verified_registrations_count !== undefined && (
-                      <span className="ml-1 px-1.5 py-0.2 rounded bg-[#0DA5F0]/20 text-[10px]">
+                      <span className="ml-1 px-1.5 py-0.2 rounded bg-[#1789E5]/20 text-[10px]">
                         {ev.verified_registrations_count}
                       </span>
                     )}
@@ -238,7 +241,7 @@ export const AdminEventsPage: React.FC = () => {
                     onClick={() => handleOpenEdit(ev)}
                     variant="outline"
                     size="sm"
-                    className="font-mono text-xs border-[#334155] text-[#F8FAFC] hover:border-[#0DA5F0]"
+                    className="font-mono text-xs border-[#334155] text-[#F8FAFC] hover:border-[#1789E5]"
                   >
                     <Edit3 className="h-3.5 w-3.5 mr-1" />
                     <span>EDIT</span>
@@ -281,7 +284,7 @@ export const AdminEventsPage: React.FC = () => {
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   placeholder="e.g. HackShastra National Hackathon 2026"
-                  className="w-full rounded-[2px] border border-[#1E293B] bg-[#090D12] px-3 py-2 text-sm text-[#F8FAFC] focus:border-[#0DA5F0] focus:outline-none"
+                  className="w-full rounded-[2px] border border-[#1E293B] bg-[#090D12] px-3 py-2 text-sm text-[#F8FAFC] focus:border-[#1789E5] focus:outline-none"
                 />
               </div>
 
@@ -291,7 +294,7 @@ export const AdminEventsPage: React.FC = () => {
                   <select
                     value={formData.eventType}
                     onChange={(e) => setFormData({ ...formData, eventType: e.target.value })}
-                    className="w-full rounded-[2px] border border-[#1E293B] bg-[#090D12] px-3 py-2 text-sm text-[#F8FAFC] focus:border-[#0DA5F0] focus:outline-none"
+                    className="w-full rounded-[2px] border border-[#1E293B] bg-[#090D12] px-3 py-2 text-sm text-[#F8FAFC] focus:border-[#1789E5] focus:outline-none"
                   >
                     <option value="HACKATHON">HACKATHON</option>
                     <option value="WORKSHOP">WORKSHOP</option>
@@ -305,7 +308,7 @@ export const AdminEventsPage: React.FC = () => {
                   <select
                     value={formData.status}
                     onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                    className="w-full rounded-[2px] border border-[#1E293B] bg-[#090D12] px-3 py-2 text-sm text-[#F8FAFC] focus:border-[#0DA5F0] focus:outline-none"
+                    className="w-full rounded-[2px] border border-[#1E293B] bg-[#090D12] px-3 py-2 text-sm text-[#F8FAFC] focus:border-[#1789E5] focus:outline-none"
                   >
                     <option value="PUBLISHED">PUBLISHED (Live)</option>
                     <option value="DRAFT">DRAFT (Hidden)</option>
@@ -321,7 +324,7 @@ export const AdminEventsPage: React.FC = () => {
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Details about format, prize pool, mentors..."
-                  className="w-full rounded-[2px] border border-[#1E293B] bg-[#090D12] px-3 py-2 text-sm text-[#F8FAFC] focus:border-[#0DA5F0] focus:outline-none"
+                  className="w-full rounded-[2px] border border-[#1E293B] bg-[#090D12] px-3 py-2 text-sm text-[#F8FAFC] focus:border-[#1789E5] focus:outline-none"
                 />
               </div>
 
@@ -332,7 +335,7 @@ export const AdminEventsPage: React.FC = () => {
                     type="date"
                     value={formData.startDate}
                     onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-                    className="w-full rounded-[2px] border border-[#1E293B] bg-[#090D12] px-3 py-2 text-sm text-[#F8FAFC] focus:border-[#0DA5F0] focus:outline-none"
+                    className="w-full rounded-[2px] border border-[#1E293B] bg-[#090D12] px-3 py-2 text-sm text-[#F8FAFC] focus:border-[#1789E5] focus:outline-none"
                   >
                   </input>
                 </div>
@@ -343,7 +346,7 @@ export const AdminEventsPage: React.FC = () => {
                     type="text"
                     value={formData.location}
                     onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                    className="w-full rounded-[2px] border border-[#1E293B] bg-[#090D12] px-3 py-2 text-sm text-[#F8FAFC] focus:border-[#0DA5F0] focus:outline-none"
+                    className="w-full rounded-[2px] border border-[#1E293B] bg-[#090D12] px-3 py-2 text-sm text-[#F8FAFC] focus:border-[#1789E5] focus:outline-none"
                   />
                 </div>
               </div>
@@ -368,7 +371,7 @@ export const AdminEventsPage: React.FC = () => {
             {/* Modal Header */}
             <div className="flex items-center justify-between border-b border-[#1E293B] pb-4 mb-4">
               <div>
-                <div className="font-mono text-[10px] text-[#0DA5F0] uppercase font-bold tracking-wider">
+                <div className="font-mono text-[10px] text-[#1789E5] uppercase font-bold tracking-wider">
                   [ EVENT REGISTRATIONS & TRAINER DECKS ]
                 </div>
                 <h2 className="font-heading text-xl sm:text-2xl font-bold text-white">
@@ -392,7 +395,7 @@ export const AdminEventsPage: React.FC = () => {
                   value={regSearch}
                   onChange={(e) => setRegSearch(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && fetchRegistrations(activeRegEvent.id)}
-                  className="w-full rounded-[2px] border border-[#1E293B] bg-[#090D12] pl-8 pr-3 py-1.5 text-xs text-[#F8FAFC] focus:border-[#0DA5F0] outline-none"
+                  className="w-full rounded-[2px] border border-[#1E293B] bg-[#090D12] pl-8 pr-3 py-1.5 text-xs text-[#F8FAFC] focus:border-[#1789E5] outline-none"
                 />
                 <Search className="w-3.5 h-3.5 text-[#64748B] absolute left-2.5 top-1/2 -translate-y-1/2" />
               </div>
@@ -403,7 +406,7 @@ export const AdminEventsPage: React.FC = () => {
                   onChange={(e) => {
                     setRegPokemonFilter(e.target.value);
                   }}
-                  className="w-full rounded-[2px] border border-[#1E293B] bg-[#090D12] px-2.5 py-1.5 text-xs text-[#F8FAFC] focus:border-[#0DA5F0] outline-none cursor-pointer"
+                  className="w-full rounded-[2px] border border-[#1E293B] bg-[#090D12] px-2.5 py-1.5 text-xs text-[#F8FAFC] focus:border-[#1789E5] outline-none cursor-pointer"
                 >
                   <option value="">All Pokémon</option>
                   <option value="squirtle">Squirtle (Water)</option>
@@ -418,7 +421,7 @@ export const AdminEventsPage: React.FC = () => {
                   onChange={(e) => {
                     setRegParticipationFilter(e.target.value);
                   }}
-                  className="w-full rounded-[2px] border border-[#1E293B] bg-[#090D12] px-2.5 py-1.5 text-xs text-[#F8FAFC] focus:border-[#0DA5F0] outline-none cursor-pointer"
+                  className="w-full rounded-[2px] border border-[#1E293B] bg-[#090D12] px-2.5 py-1.5 text-xs text-[#F8FAFC] focus:border-[#1789E5] outline-none cursor-pointer"
                 >
                   <option value="">All Readiness</option>
                   <option value="yes">Battle Ready (I'M IN)</option>
@@ -483,7 +486,7 @@ export const AdminEventsPage: React.FC = () => {
                           <div className="font-heading font-bold text-white text-sm">
                             {reg.full_name}
                           </div>
-                          <div className="text-[10px] text-[#0DA5F0]">
+                          <div className="text-[10px] text-[#1789E5]">
                             {reg.student_id || 'ID: N/A'} {reg.gender && `• ${reg.gender}`}
                           </div>
                         </td>
@@ -505,19 +508,19 @@ export const AdminEventsPage: React.FC = () => {
                                     ? '#F9731620'
                                     : reg.favourite_pokemon.toLowerCase() === 'bulbasaur'
                                     ? '#65A30D20'
-                                    : '#0DA5F020',
+                                    : '#1789E520',
                                 color:
                                   reg.favourite_pokemon.toLowerCase() === 'charmander'
                                     ? '#F97316'
                                     : reg.favourite_pokemon.toLowerCase() === 'bulbasaur'
                                     ? '#65A30D'
-                                    : '#0DA5F0',
+                                    : '#1789E5',
                                 border: `1px solid ${
                                   reg.favourite_pokemon.toLowerCase() === 'charmander'
                                     ? '#F9731640'
                                     : reg.favourite_pokemon.toLowerCase() === 'bulbasaur'
                                     ? '#65A30D40'
-                                    : '#0DA5F040'
+                                    : '#1789E540'
                                 }`,
                               }}
                             >

@@ -10,32 +10,32 @@
 
 @layer base {
   :root {
-    /* 8-COLOR WHITE-BASE MASTER PALETTE */
-    --color-1-white: #FFFFFF;
-    --color-2-cyan: #0DA5F0;
-    --color-3-ink: #090D12;
-    --color-4-surface-soft: #F8FAFC;
-    --color-5-cyber-azure: #0284C7;
-    --color-6-cobalt-indigo: #1D4ED8;
-    --color-7-muted-slate: #64748B;
-    --color-8-border-line: #E2E8F0;
+    /* COLOR HUNT PALETTE: 9cc6db - fcf6d9 - cf4b00 - ddba7d */
+    --color-1-powder-blue: #9CC6DB;
+    --color-2-soft-cream: #FCF6D9;
+    --color-3-terracotta: #CF4B00;
+    --color-4-sand-gold: #DDBA7D;
+    --color-ink: #0F172A;
+    --color-muted-slate: #475569;
+    --color-border-line: #C8DBE5;
 
     /* Semantic mappings */
-    --color-bg-base: var(--color-1-white);
-    --color-bg-surface: var(--color-4-surface-soft);
-    --color-bg-surface-2: #F1F5F9;
+    --color-bg-base: #FCF6D9;
+    --color-bg-surface: #9CC6DB;
+    --color-bg-surface-2: #DDBA7D;
 
-    --color-brand-primary: var(--color-2-cyan);
-    --color-brand-highlight: var(--color-5-cyber-azure);
-    --color-brand-deep: var(--color-6-cobalt-indigo);
+    --color-brand-primary: #CF4B00;
+    --color-brand-button: #CF4B00;
+    --color-brand-blue: #9CC6DB;
+    --color-brand-cream: #FCF6D9;
+    --color-brand-gold: #DDBA7D;
 
-    --color-text-primary: var(--color-3-ink);
+    --color-text-primary: #0F172A;
     --color-text-secondary: #334155;
-    --color-text-muted: var(--color-7-muted-slate);
-    --color-text-disabled: #94A3B8;
+    --color-text-muted: #475569;
 
-    --color-border: var(--color-8-border-line);
-    --color-border-active: var(--color-2-cyan);
+    --color-border: #C8DBE5;
+    --color-border-active: #CF4B00;
 
     --font-heading: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
     --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -110,7 +110,7 @@
   border-radius: 2px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #0DA5F0;
+  background: #1789E5;
 }
 
 /* Typography Utility Classes */
@@ -129,26 +129,43 @@
 }
 
 /* Glow & Atmospheric Effects on White */
-.glow-cyan-subtle {
-  box-shadow: 0 4px 20px -2px rgba(13, 165, 240, 0.12);
+.glow-cyan-subtle, .glow-brand-subtle {
+  box-shadow: 0 4px 20px -2px rgba(23, 137, 229, 0.12);
 }
 
-.glow-cyan-active {
-  box-shadow: 0 8px 30px rgba(13, 165, 240, 0.22);
+.glow-cyan-active, .glow-brand-active {
+  box-shadow: 0 8px 30px rgba(23, 137, 229, 0.22);
 }
 
 .bg-radial-atmosphere {
-  background: radial-gradient(circle at 50% -10%, rgba(13, 165, 240, 0.08) 0%, transparent 60%);
+  background-color: rgba(23, 137, 229, 0.04);
 }
 
-.bg-grid-pattern {
-  background-size: 36px 36px;
-  background-image: 
-    linear-gradient(to right, rgba(226, 232, 240, 0.8) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(226, 232, 240, 0.8) 1px, transparent 1px);
+/* Palette Background Surface Tints */
+.bg-palette-blue-soft {
+  background-color: #FCF6D9;
+}
+.bg-palette-mint-soft {
+  background-color: #9CC6DB;
+}
+.bg-palette-teal-soft {
+  background-color: #DDBA7D;
+}
+.bg-palette-green-soft {
+  background-color: rgba(207, 75, 0, 0.08);
 }
 
 /* Image alignment override for specific team photo */
 .team-member-img[src*="20260208_172130"] {
   object-position: center 20% !important;
 }
+
+/* Hide taskbar/navbar completely on loading page/entrance portal */
+body.entrance-portal-active header {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+  transform: translateY(-100%) !important;
+  transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease;
+}
+

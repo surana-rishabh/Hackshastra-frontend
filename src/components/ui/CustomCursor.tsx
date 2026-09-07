@@ -86,10 +86,10 @@ export const CustomCursor: React.FC = () => {
           }}
           transition={{ type: 'spring', damping: 20, stiffness: 300 }}
         >
-          <span className="absolute top-0 left-0 h-2 w-2 border-t-[1.5px] border-l-[1.5px] border-[#0DA5F0]" />
-          <span className="absolute top-0 right-0 h-2 w-2 border-t-[1.5px] border-r-[1.5px] border-[#0DA5F0]" />
-          <span className="absolute bottom-0 left-0 h-2 w-2 border-b-[1.5px] border-l-[1.5px] border-[#0DA5F0]" />
-          <span className="absolute bottom-0 right-0 h-2 w-2 border-b-[1.5px] border-r-[1.5px] border-[#0DA5F0]" />
+          <span className="absolute top-0 left-0 h-2 w-2 border-t-[1.5px] border-l-[1.5px] border-[#1789E5]" />
+          <span className="absolute top-0 right-0 h-2 w-2 border-t-[1.5px] border-r-[1.5px] border-[#1789E5]" />
+          <span className="absolute bottom-0 left-0 h-2 w-2 border-b-[1.5px] border-l-[1.5px] border-[#1789E5]" />
+          <span className="absolute bottom-0 right-0 h-2 w-2 border-b-[1.5px] border-r-[1.5px] border-[#1789E5]" />
         </motion.div>
 
         {isInteractive && (
@@ -97,7 +97,7 @@ export const CustomCursor: React.FC = () => {
             initial={{ opacity: 0, x: 10 }}
             animate={{ opacity: 1, x: 28 }}
             exit={{ opacity: 0 }}
-            className="absolute left-0 top-0 -translate-y-1/2 whitespace-nowrap bg-[#090D12] border border-[#0DA5F0] px-1.5 py-0.5 rounded-[2px] font-mono text-[9px] uppercase tracking-wider text-[#FFFFFF] shadow-md"
+            className="absolute left-0 top-0 -translate-y-1/2 whitespace-nowrap bg-[#090D12] border border-[#1789E5] px-1.5 py-0.5 rounded-[2px] font-mono text-[9px] uppercase tracking-wider text-[#FFFFFF] shadow-md"
           >
             {hoverType === 'link' && 'OPEN // LINK'}
             {hoverType === 'button' && 'ACTION // EXEC'}
@@ -107,7 +107,7 @@ export const CustomCursor: React.FC = () => {
       </motion.div>
 
       <motion.div
-        className="fixed top-0 left-0 pointer-events-none rounded-full bg-[#0DA5F0] shadow-[0_0_6px_#0DA5F0]"
+        className="fixed top-0 left-0 pointer-events-none rounded-full bg-[#1789E5] shadow-[0_0_6px_#1789E5]"
         style={{
           x: mouseX,
           y: mouseY,

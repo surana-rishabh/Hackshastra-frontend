@@ -6,7 +6,7 @@ import { ArrowLeft } from 'lucide-react';
 export const NotFoundPage: React.FC = () => {
   return (
     <div className="min-h-[70vh] flex flex-col items-center justify-center text-center p-6 bg-[#FFFFFF]">
-      <span className="font-mono text-sm text-[#0DA5F0] font-bold mb-2">[ ERROR 404 ]</span>
+      <span className="font-mono text-sm text-[#1789E5] font-bold mb-2">[ ERROR 404 ]</span>
       <h1 className="font-heading text-6xl sm:text-8xl font-bold tracking-tight text-[#090D12]">
         404
       </h1>

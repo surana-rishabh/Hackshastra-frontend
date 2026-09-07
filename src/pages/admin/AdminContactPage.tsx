@@ -31,6 +31,9 @@ export const AdminContactPage: React.FC = () => {
 
   useEffect(() => {
     fetchContacts();
+    const handleSync = () => fetchContacts();
+    window.addEventListener('hackshastra-db-sync', handleSync);
+    return () => window.removeEventListener('hackshastra-db-sync', handleSync);
   }, []);
 
   const updateStatus = async (id: string | number, status: string) => {
@@ -48,7 +51,7 @@ export const AdminContactPage: React.FC = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#1E293B] pb-6">
         <div>
-          <div className="font-mono text-xs uppercase text-[#0DA5F0] font-bold mb-1">
+          <div className="font-mono text-xs uppercase text-[#1789E5] font-bold mb-1">
             [ VERIFIED COMMUNICATIONS ]
           </div>
           <h1 className="font-heading text-3xl font-bold text-[#FFFFFF]">
@@ -83,7 +86,7 @@ export const AdminContactPage: React.FC = () => {
                     <span className="font-heading text-base font-bold text-[#FFFFFF]">{item.name}</span>
                     <a
                       href={`mailto:${item.email}`}
-                      className="font-mono text-xs text-[#0DA5F0] hover:underline flex items-center gap-1"
+                      className="font-mono text-xs text-[#1789E5] hover:underline flex items-center gap-1"
                     >
                       <Mail className="h-3 w-3" />
                       <span>{item.email}</span>

@@ -27,7 +27,7 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
   const getPartnerIcon = (id: string) => {
     switch (id) {
       case 'squirtle':
-        return <Droplets className="w-3.5 h-3.5 text-[#0DA5F0]" />;
+        return <Droplets className="w-3.5 h-3.5 text-[#1789E5]" />;
       case 'charmander':
         return <Flame className="w-3.5 h-3.5 text-[#F97316]" />;
       case 'bulbasaur':
@@ -39,7 +39,7 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
   return (
     <div className={cn('w-full space-y-2.5 text-left', className)}>
       <div className="flex items-center justify-between border-b border-white/15 pb-2">
-        <div className="flex items-center gap-1.5 font-mono text-xs font-bold text-[#0DA5F0]">
+        <div className="flex items-center gap-1.5 font-mono text-xs font-bold text-[#1789E5]">
           <ShieldCheck className="w-4 h-4" />
           <span>DECK SPECIFICATION // VERIFY</span>
         </div>
@@ -50,17 +50,17 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
         {/* Trainer Profile Block */}
-        <div className="p-2.5 rounded-[4px] bg-black/60 border border-white/20 relative group hover:border-[#0DA5F0] transition-colors">
+        <div className="p-2.5 rounded-[4px] bg-black/60 border border-white/20 relative group hover:border-[#1789E5] transition-colors">
           <button
             type="button"
             onClick={() => onEditCard(0)}
-            className="absolute top-2 right-2 text-slate-400 hover:text-[#0DA5F0] cursor-pointer"
+            className="absolute top-2 right-2 text-slate-400 hover:text-[#1789E5] cursor-pointer"
             title="Edit Trainer Profile"
           >
             <Edit2 className="w-3 h-3" />
           </button>
           <div className="font-mono text-[8px] sm:text-[9px] uppercase tracking-wider text-slate-400 mb-0.5 flex items-center gap-1 font-bold">
-            <User className="w-3 h-3 text-[#0DA5F0]" /> TRAINER PROFILE
+            <User className="w-3 h-3 text-[#1789E5]" /> TRAINER PROFILE
           </div>
           <div className="font-heading font-bold text-xs sm:text-sm text-white truncate">
             {formData.fullName || '—'}
@@ -71,23 +71,23 @@ export const RegistrationSummary: React.FC<RegistrationSummaryProps> = ({
         </div>
 
         {/* Comms Signal Block */}
-        <div className="p-2.5 rounded-[4px] bg-black/60 border border-white/20 relative group hover:border-[#0DA5F0] transition-colors">
+        <div className="p-2.5 rounded-[4px] bg-black/60 border border-white/20 relative group hover:border-[#1789E5] transition-colors">
           <button
             type="button"
             onClick={() => onEditCard(1)}
-            className="absolute top-2 right-2 text-slate-400 hover:text-[#0DA5F0] cursor-pointer"
+            className="absolute top-2 right-2 text-slate-400 hover:text-[#1789E5] cursor-pointer"
             title="Edit Contact Signal"
           >
             <Edit2 className="w-3 h-3" />
           </button>
           <div className="font-mono text-[8px] sm:text-[9px] uppercase tracking-wider text-slate-400 mb-0.5 flex items-center gap-1 font-bold">
-            <Mail className="w-3 h-3 text-[#0DA5F0]" /> COMMS SIGNAL
+            <Mail className="w-3 h-3 text-[#1789E5]" /> COMMS SIGNAL
           </div>
           <div className="font-sans font-medium text-xs text-white truncate">
             {formData.email || '—'}
           </div>
           <div className="font-mono text-[10px] text-slate-300 mt-0.5 flex items-center gap-1 truncate">
-            <Phone className="w-2.5 h-2.5 text-[#0DA5F0]" /> {formData.contactNumber || '—'}
+            <Phone className="w-2.5 h-2.5 text-[#1789E5]" /> {formData.contactNumber || '—'}
           </div>
         </div>
 

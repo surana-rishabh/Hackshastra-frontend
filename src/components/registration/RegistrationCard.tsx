@@ -65,7 +65,7 @@ export const RegistrationCard: React.FC<RegistrationCardProps> = ({
   const getTypeIcon = (accent: string) => {
     if (accent === '#F97316') return <Flame className="w-3.5 h-3.5 text-[#F97316]" />;
     if (accent === '#65A30D') return <Leaf className="w-3.5 h-3.5 text-[#65A30D]" />;
-    return <Droplets className="w-3.5 h-3.5 text-[#0DA5F0]" />;
+    return <Droplets className="w-3.5 h-3.5 text-[#1789E5]" />;
   };
 
   return (
@@ -96,30 +96,12 @@ export const RegistrationCard: React.FC<RegistrationCardProps> = ({
           className="absolute inset-0 w-full h-full object-cover object-center opacity-55 filter contrast-110 brightness-105"
         />
 
-        {/* Translucent Cyber Vignette & Depth Gradient */}
-        <div
-          className="absolute inset-0"
-          style={{
-            background: `linear-gradient(180deg, rgba(8,2,4,0.55) 0%, rgba(8,2,4,0.12) 30%, rgba(8,2,4,0.75) 65%, rgba(8,2,4,0.96) 100%)`,
-          }}
-        />
+        {/* Translucent Cyber Vignette & Depth */}
+        <div className="absolute inset-0 bg-[#080204]/80 backdrop-blur-md" />
 
         {/* Ambient Elemental Accent Glow */}
-        <div
-          className="absolute top-0 inset-x-0 h-48 opacity-30 pointer-events-none"
-          style={{
-            background: `radial-gradient(ellipse at 50% 0%, ${card.typeAccent} 0%, transparent 80%)`,
-          }}
-        />
+        <div className="absolute top-0 inset-x-0 h-48 opacity-20 bg-[#1789E5]/20 backdrop-blur-sm pointer-events-none" />
 
-        {/* Cyber HUD Grid Overlay */}
-        <div
-          className="absolute inset-0 opacity-15 pointer-events-none"
-          style={{
-            backgroundImage: `radial-gradient(${card.typeAccent} 1.2px, transparent 1.2px)`,
-            backgroundSize: '22px 22px',
-          }}
-        />
 
         {/* Corner Tech Brackets */}
         <div className="absolute top-3 left-3 w-4 h-4 border-t-2 border-l-2 border-white/40" />
@@ -144,7 +126,7 @@ export const RegistrationCard: React.FC<RegistrationCardProps> = ({
         <div className="flex items-center gap-2.5">
           <div className="flex items-center gap-1.5">
             <span
-              className="w-3.5 h-3.5 rounded-full shadow-[0_0_12px_#0DA5F0] animate-pulse"
+              className="w-3.5 h-3.5 rounded-full shadow-[0_0_12px_#1789E5] animate-pulse"
               style={{ backgroundColor: card.typeAccent }}
             />
             <span className="w-2 h-2 rounded-full bg-amber-400" />
@@ -340,12 +322,7 @@ export const RegistrationCard: React.FC<RegistrationCardProps> = ({
       )}
 
       {/* Bottom Foil Rim */}
-      <div
-        className="h-1.5 w-full"
-        style={{
-          background: `linear-gradient(90deg, transparent 0%, ${card.typeAccent} 50%, transparent 100%)`,
-        }}
-      />
+      <div className="h-1 w-full bg-[#1789E5]" />
     </motion.div>
   );
 };

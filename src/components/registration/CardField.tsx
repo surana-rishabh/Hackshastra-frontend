@@ -31,7 +31,7 @@ export const CardField: React.FC<CardFieldProps> = ({
   helperText,
   error,
   required = false,
-  typeAccent = '#0DA5F0',
+  typeAccent = '#1789E5',
   autoFocus = false,
   className,
 }) => {

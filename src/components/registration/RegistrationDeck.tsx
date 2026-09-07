@@ -54,7 +54,7 @@ export const RegistrationDeck: React.FC<RegistrationDeckProps> = ({
   });
 
   const activeCard = config.cards[currentCard];
-  const activeAccent = activeCard?.typeAccent || '#0DA5F0';
+  const activeAccent = activeCard?.typeAccent || '#1789E5';
 
   // Live accessibility announcement on card change
   React.useEffect(() => {

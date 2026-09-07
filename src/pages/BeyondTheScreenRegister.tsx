@@ -10,6 +10,7 @@ import { PingPongVideoBackground } from '@/components/registration/PingPongVideo
 import { FadeUp } from '@/components/ui/MotionWrapper';
 import { api } from '@/lib/api';
 import bgVideoUrl from '@/assets/events/beyond-the-screen/bg-loop.webm';
+import { PokeballCursor } from '@/components/registration/PokeballCursor';
 
 export const BeyondTheScreenRegister: React.FC = () => {
   const navigate = useNavigate();
@@ -70,18 +71,7 @@ export const BeyondTheScreenRegister: React.FC = () => {
         throw new Error(res.message || 'Registration failed to complete');
       }
     } catch (err: any) {
-      // In development or offline preview mode, show card preview if backend isn't reachable
-      if (import.meta.env.DEV) {
-        setRegistrationResult({
-          id: `BTS-DEV-${Math.floor(100000 + Math.random() * 900000)}`,
-          status: 'VERIFIED',
-          verified_at: new Date().toISOString(),
-        });
-        setIsSubmitted(true);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      } else {
-        setSubmissionError(err.message || 'Registration could not be completed. Please verify your details.');
-      }
+      setSubmissionError(err.message || 'Registration could not be completed. Please verify your details.');
     } finally {
       setIsSubmitting(false);
     }
@@ -95,11 +85,12 @@ export const BeyondTheScreenRegister: React.FC = () => {
   };
 
   return (
-    <div className="relative min-h-screen w-full bg-[#06090E] flex flex-col justify-start items-center pt-5 sm:pt-8 pb-12 px-3 sm:px-4 overflow-x-hidden text-white selection:bg-[#F59E0B]/30 selection:text-white">
+    <div className="pokeball-cursor-page relative min-h-screen w-full bg-[#FCF6D9] flex flex-col justify-start items-center pt-5 sm:pt-8 pb-12 px-3 sm:px-4 overflow-x-hidden text-[#0F172A] selection:bg-[#CF4B00]/30 selection:text-[#0F172A]">
+      <PokeballCursor />
       {/* Full-Page Continuous Video Background Loop */}
       <PingPongVideoBackground
         src={bgVideoUrl || '/events/beyond-the-screen/bg-loop.webm'}
-        overlayClassName="bg-black/40 backdrop-blur-[0.5px]"
+        overlayClassName="bg-[#FCF6D9]/40 backdrop-blur-[0.5px]"
       />
 
       {/* Floating Top-Left Corner Back Button */}
@@ -107,11 +98,11 @@ export const BeyondTheScreenRegister: React.FC = () => {
         <button
           type="button"
           onClick={handleBack}
-          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-black/75 hover:bg-[#090D12] border border-white/25 hover:border-[#F59E0B] backdrop-blur-md text-white/90 hover:text-white font-mono text-xs transition-all shadow-xl hover:shadow-[#F59E0B]/30 group cursor-pointer"
+          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#CF4B00] hover:bg-[#b04000] border border-[#CF4B00] text-[#FFFFFF] font-mono text-xs transition-all shadow-xl hover:shadow-[#CF4B00]/30 group cursor-pointer"
           title="Go back to previous page"
         >
-          <ArrowLeft className="w-3.5 h-3.5 text-amber-400 group-hover:-translate-x-1 transition-transform duration-200" />
-          <span className="font-semibold tracking-wider uppercase text-[11px]">BACK</span>
+          <ArrowLeft className="w-3.5 h-3.5 text-[#FFFFFF] group-hover:-translate-x-1 transition-transform duration-200" />
+          <span className="font-bold tracking-wider uppercase text-[11px]">BACK</span>
         </button>
       </div>
 

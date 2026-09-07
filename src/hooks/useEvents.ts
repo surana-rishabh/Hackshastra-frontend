@@ -48,8 +48,11 @@ export function useEvents() {
       }
     }
     fetchEvents();
+    const handleSync = () => fetchEvents();
+    window.addEventListener('hackshastra-db-sync', handleSync);
     return () => {
       isMounted = false;
+      window.removeEventListener('hackshastra-db-sync', handleSync);
     };
   }, []);
 

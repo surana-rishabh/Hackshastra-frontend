@@ -172,11 +172,10 @@ export const RegistrationSuccess: React.FC<RegistrationSuccessProps> = ({
     }
   };
 
-  // Helper to generate styled single-page PDF pass with embedded card graphic
+  // Helper to generate styled single-page PDF pass with embedded card graphic & QR details
   const generateCardPdf = async (pngDataUrl?: string): Promise<string | null> => {
     try {
       const imgUrl = pngDataUrl || (await generateCardPng());
-      if (!imgUrl) return null;
 
       const pdf = new jsPDF({
         orientation: 'portrait',
@@ -204,20 +203,27 @@ export const RegistrationSuccess: React.FC<RegistrationSuccessProps> = ({
       pdf.setTextColor(254, 240, 138);
       pdf.text('SRM UNIVERSITY-AP  •  VENUE: CV 402  •  16 SEPTEMBER 2026 (2:30 PM)', pageWidth / 2, 29, { align: 'center' });
 
-      // Embed the high-resolution Pokémon card graphic
-      const cardWidth = 110;
-      const cardHeight = 110 * 1.42; // maintaining 1:1.42 card aspect ratio
-      const cardX = (pageWidth - cardWidth) / 2;
-      const cardY = 40;
+      let infoY = 45;
 
-      pdf.addImage(imgUrl, 'PNG', cardX, cardY, cardWidth, cardHeight, undefined, 'FAST');
+      // If PNG card graphic is generated, embed it at top center of PDF
+      if (imgUrl) {
+        const cardWidth = 105;
+        const cardHeight = 105 * 1.42;
+        const cardX = (pageWidth - cardWidth) / 2;
+        const cardY = 38;
+        try {
+          pdf.addImage(imgUrl, 'PNG', cardX, cardY, cardWidth, cardHeight, undefined, 'FAST');
+          infoY = cardY + cardHeight + 6;
+        } catch (e) {
+          console.warn('Could not embed card PNG in PDF:', e);
+        }
+      }
 
       // Bottom Pass Details & Verification Box
-      const infoY = cardY + cardHeight + 8;
       pdf.setFillColor(17, 24, 39);
       pdf.setDrawColor(245, 158, 11);
       pdf.setLineWidth(0.5);
-      pdf.roundedRect(15, infoY, pageWidth - 30, 48, 3, 3, 'FD');
+      pdf.roundedRect(15, infoY, pageWidth - 30, 52, 3, 3, 'FD');
 
       pdf.setFont('helvetica', 'bold');
       pdf.setFontSize(11);
@@ -235,7 +241,18 @@ export const RegistrationSuccess: React.FC<RegistrationSuccessProps> = ({
       pdf.text(`Starter Partner: ${selectedPokemon.name}`, pageWidth / 2 + 5, infoY + 18);
       pdf.text(`Battle Role: ${formData.participationInterest === 'yes' ? 'Challenger (Battling)' : 'Participant'}`, pageWidth / 2 + 5, infoY + 25);
       pdf.text(`Pass ID: ${entryId}`, pageWidth / 2 + 5, infoY + 32);
-      pdf.text(`Status: OFFICIALLY CONFIRMED`, pageWidth / 2 + 5, infoY + 39);
+      pdf.text(`Status: OFFICIALLY CONFIRMED & VERIFIED`, pageWidth / 2 + 5, infoY + 39);
+
+      // Embed QR code into details box if ready
+      if (qrCodeDataUrl) {
+        try {
+          const qrSize = 34;
+          const qrX = pageWidth - 15 - 34 - 4;
+          pdf.addImage(qrCodeDataUrl, 'PNG', qrX, infoY + 12, qrSize, qrSize);
+        } catch (e) {
+          // ignore
+        }
+      }
 
       // Security footer
       pdf.setFontSize(7.5);
@@ -384,7 +401,7 @@ export const RegistrationSuccess: React.FC<RegistrationSuccessProps> = ({
     // Default to Squirtle (Water)
     return {
       primary: '#075985', // Deep ocean navy
-      accent: '#0284c7',  // Cobalt cyan
+      accent: '#30C192',  // Cobalt cyan
       subtext: '#1f2937',
       badgeBg: '#e0f2fe',
       badgeText: '#0369a1',
@@ -436,9 +453,6 @@ export const RegistrationSuccess: React.FC<RegistrationSuccessProps> = ({
             alt={`${selectedPokemon.name} Card`}
             className="absolute inset-0 w-full h-full object-fill select-none pointer-events-none"
           />
-
-          {/* Holographic Shimmer Coating */}
-          <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent pointer-events-none opacity-60" />
 
           {/* ALL TRAINER DETAILS ANCHORED IN LOWER HALF SECTION (53.5% - 90% height) */}
           <div className="absolute top-[53.5%] bottom-[5%] left-[5%] right-[5%] flex flex-col justify-between text-black pointer-events-none z-10 px-2 sm:px-2.5 py-1.5 sm:py-2">

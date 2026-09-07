@@ -12,7 +12,7 @@ interface CardCompletionMarkProps {
 
 export const CardCompletionMark: React.FC<CardCompletionMarkProps> = ({
   isCompleted,
-  typeAccent = '#0DA5F0',
+  typeAccent = '#1789E5',
   className,
   label = 'CAPTURED',
 }) => {

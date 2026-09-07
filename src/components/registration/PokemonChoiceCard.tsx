@@ -20,7 +20,7 @@ export const PokemonChoiceCard: React.FC<PokemonChoiceCardProps> = ({
   const getElementalIcon = () => {
     if (pokemon.id === 'charmander') return <Flame className="w-8 h-8 text-[#F97316]" />;
     if (pokemon.id === 'bulbasaur') return <Leaf className="w-8 h-8 text-[#65A30D]" />;
-    return <Droplets className="w-8 h-8 text-[#0DA5F0]" />;
+    return <Droplets className="w-8 h-8 text-[#1789E5]" />;
   };
 
   return (
@@ -48,12 +48,7 @@ export const PokemonChoiceCard: React.FC<PokemonChoiceCardProps> = ({
       }}
     >
       {/* Background elemental ambient glow */}
-      <div
-        className="absolute inset-0 opacity-20 pointer-events-none transition-opacity duration-300 group-hover:opacity-40"
-        style={{
-          background: `radial-gradient(circle at 50% 40%, ${pokemon.typeColor} 0%, transparent 80%)`,
-        }}
-      />
+      <div className="absolute inset-0 opacity-20 pointer-events-none transition-opacity duration-300 group-hover:opacity-40 bg-[#1789E5]/10 backdrop-blur-sm" />
 
       {/* Top Bar: Type Badge & Selection Checkmark */}
       <div className="relative z-10 flex items-center justify-between mb-2">

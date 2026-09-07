@@ -36,10 +36,10 @@ export const AdminLoginPage: React.FC = () => {
     <div className="min-h-screen bg-[#090D12] text-[#F8FAFC] flex items-center justify-center p-4">
       <div className="max-w-md w-full rounded-[2px] border border-[#1E293B] bg-[#0D121A] p-8 shadow-[0_20px_50px_rgba(0,0,0,0.6)]">
         <div className="text-center mb-8">
-          <div className="h-14 w-14 rounded-full bg-[#0DA5F0]/10 border border-[#0DA5F0] text-[#0DA5F0] flex items-center justify-center mx-auto mb-4">
+          <div className="h-14 w-14 rounded-full bg-[#1789E5]/10 border border-[#1789E5] text-[#1789E5] flex items-center justify-center mx-auto mb-4">
             <Shield className="h-7 w-7" />
           </div>
-          <div className="font-mono text-xs text-[#0DA5F0] font-bold uppercase tracking-widest mb-1">
+          <div className="font-mono text-xs text-[#1789E5] font-bold uppercase tracking-widest mb-1">
             [ SUBDOMAIN CONTROL ROOM ]
           </div>
           <h1 className="font-heading text-2xl sm:text-3xl font-bold text-[#FFFFFF]">
@@ -66,8 +66,8 @@ export const AdminLoginPage: React.FC = () => {
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Uday Sharma / Lead Admin"
-              className="w-full rounded-[2px] border border-[#1E293B] bg-[#090D12] px-4 py-2.5 text-sm text-[#F8FAFC] placeholder-[#475569] focus:border-[#0DA5F0] focus:outline-none transition-all"
+              placeholder="e.g. Lead Administrator / Core Admin"
+              className="w-full rounded-[2px] border border-[#1E293B] bg-[#090D12] px-4 py-2.5 text-sm text-[#F8FAFC] placeholder-[#475569] focus:border-[#1789E5] focus:outline-none transition-all"
             />
           </div>
 
@@ -81,7 +81,7 @@ export const AdminLoginPage: React.FC = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="hssc2025@srmap.edu.in"
-              className="w-full rounded-[2px] border border-[#1E293B] bg-[#090D12] px-4 py-2.5 text-sm text-[#F8FAFC] placeholder-[#475569] focus:border-[#0DA5F0] focus:outline-none transition-all"
+              className="w-full rounded-[2px] border border-[#1E293B] bg-[#090D12] px-4 py-2.5 text-sm text-[#F8FAFC] placeholder-[#475569] focus:border-[#1789E5] focus:outline-none transition-all"
             />
           </div>
 

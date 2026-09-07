@@ -43,25 +43,37 @@ export const ContactPage: React.FC = () => {
     setTimeout(() => setCopiedField(null), 2500);
   };
 
+  const [initialOtpEmail, setInitialOtpEmail] = React.useState<string>('');
+  const [emailChangedHalfway, setEmailChangedHalfway] = React.useState(false);
+  const [failedAttempts, setFailedAttempts] = React.useState(0);
+  const [activeOtp, setActiveOtp] = React.useState<string | null>(null);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     if (errorMessage) setErrorMessage(null);
 
-    // If user changes email after verification, reset verification status
-    if (name === 'email' && isEmailVerified && value.trim().toLowerCase() !== verifiedEmail) {
-      setIsEmailVerified(false);
-      setVerificationToken('');
-      setOtpSent(false);
-      setOtpCode('');
-      setStatusMessage('Email changed. Please verify your new email address.');
+    // Detect if email address is changed halfway through OTP verification
+    if (name === 'email' && (otpSent || isEmailVerified)) {
+      if (value.trim().toLowerCase() !== initialOtpEmail.trim().toLowerCase()) {
+        setEmailChangedHalfway(true);
+        setIsEmailVerified(false);
+        setVerificationToken('');
+        setOtpSent(false);
+        setActiveOtp(null);
+        setOtpCode('');
+        setFailedAttempts(0);
+        setErrorMessage('Security Alert: Email address was modified halfway through verification. Session cache destroyed. Please refresh the page and try again.');
+      }
     }
   };
 
   // Request 6-digit OTP code from backend
   const handleRequestOtp = async () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!formData.email || !emailRegex.test(formData.email.trim())) {
+    const cleanEmail = formData.email.trim();
+
+    if (!cleanEmail || !emailRegex.test(cleanEmail)) {
       setErrorMessage('Please enter a valid email address first.');
       return;
     }
@@ -69,13 +81,18 @@ export const ContactPage: React.FC = () => {
     setIsSendingOtp(true);
     setErrorMessage(null);
     setStatusMessage(null);
+    setEmailChangedHalfway(false);
 
     try {
-      const res = await api.post('/api/contact/otp', { email: formData.email.trim() });
+      const res = await api.post('/api/contact/otp', { email: cleanEmail });
       if (res.success) {
         setOtpSent(true);
+        setInitialOtpEmail(cleanEmail);
         setOtpCooldown(45);
-        setStatusMessage(`A 6-digit verification code was sent to ${formData.email}. Please check your inbox.`);
+        setFailedAttempts(0);
+        const code = res.data?.otp;
+        if (code) setActiveOtp(code);
+        setStatusMessage(res.message || `A 6-digit verification code was sent to ${cleanEmail}.`);
       } else {
         throw new Error(res.message || 'Failed to send verification code.');
       }
@@ -86,7 +103,7 @@ export const ContactPage: React.FC = () => {
     }
   };
 
-  // Verify entered OTP
+  // Verify entered OTP with 3-attempt cache destruction
   const handleVerifyOtp = async () => {
     if (!otpCode || otpCode.trim().length !== 6) {
       setErrorMessage('Please enter the full 6-digit OTP code.');
@@ -106,9 +123,24 @@ export const ContactPage: React.FC = () => {
         setIsEmailVerified(true);
         setVerifiedEmail(formData.email.trim().toLowerCase());
         setVerificationToken(res.data.verificationToken);
+        setFailedAttempts(0);
         setStatusMessage('Email verified successfully! You can now send your message.');
       } else {
-        throw new Error(res.message || 'Invalid verification code.');
+        const attempts = failedAttempts + 1;
+        setFailedAttempts(attempts);
+
+        if (res.data?.attemptsExceeded || attempts >= 3) {
+          // Destroy cache after 3 failed attempts
+          setOtpSent(false);
+          setActiveOtp(null);
+          setOtpCode('');
+          setIsEmailVerified(false);
+          setVerificationToken('');
+          setFailedAttempts(0);
+          setErrorMessage('SECURITY ALERT: 3 failed OTP attempts detected. Email session cache destroyed. Please refresh or re-enter your email to request a new code.');
+        } else {
+          setErrorMessage(res.message || `Invalid 6-digit OTP code. ${3 - attempts} attempt(s) remaining before security cache is destroyed.`);
+        }
       }
     } catch (err: any) {
       setErrorMessage(err.message || 'Failed to verify OTP.');
@@ -139,11 +171,13 @@ export const ContactPage: React.FC = () => {
 
       if (result.success) {
         setSubmitted(true);
+        setStatusMessage('Your message was sent directly to hssc2025@srmap.edu.in. We will respond shortly!');
         setFormData({ name: '', email: '', subject: '', message: '' });
         setIsEmailVerified(false);
         setVerificationToken('');
         setOtpSent(false);
         setOtpCode('');
+        setFailedAttempts(0);
       } else {
         throw new Error(result.message || 'Failed to submit message');
       }
@@ -155,18 +189,18 @@ export const ContactPage: React.FC = () => {
   };
 
   return (
-    <div className="py-12 md:py-20 bg-[#FFFFFF]">
+    <div className="py-12 md:py-20 bg-[#FCF6D9]">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <FadeUp>
-          <div className="flex items-center gap-2 font-mono text-xs uppercase text-[#0DA5F0] font-bold mb-3">
+          <div className="flex items-center gap-2 font-mono text-xs uppercase text-[#CF4B00] font-bold mb-3">
             <span>GET IN TOUCH</span>
             <span>•</span>
             <span>[ SECURE OTP DISPATCH ]</span>
           </div>
-          <h1 className="font-heading text-4xl sm:text-6xl font-bold tracking-tight text-[#090D12]">
+          <h1 className="font-heading text-4xl sm:text-6xl font-bold tracking-tight text-[#0F172A]">
             {siteData.contact.title}
           </h1>
-          <p className="mt-4 text-base text-[#334155] max-w-2xl">
+          <p className="mt-4 text-base text-[#0F172A]/90 max-w-2xl font-medium">
             {siteData.contact.subtitle}
           </p>
         </FadeUp>
@@ -175,18 +209,18 @@ export const ContactPage: React.FC = () => {
           {/* Left Info Panel */}
           <div className="lg:col-span-5 space-y-6">
             <FadeUp delay={0.1}>
-              <div className="rounded-[2px] border border-[#E2E8F0] bg-[#F8FAFC] p-6 flex flex-col justify-between shadow-xs">
+              <div className="rounded-[2px] border border-[#85b5cd] bg-[#9CC6DB] p-6 flex flex-col justify-between shadow-xs">
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <span className="font-mono text-xs text-[#0DA5F0] font-bold">OFFICIAL EMAIL</span>
+                    <span className="font-mono text-xs text-[#CF4B00] font-bold">OFFICIAL EMAIL</span>
                     <button
                       onClick={() => handleCopy(siteData.siteInfo.contactEmail, 'email')}
-                      className="text-xs font-mono text-[#64748B] hover:text-[#0DA5F0] flex items-center gap-1 cursor-pointer"
+                      className="text-xs font-mono text-[#0F172A]/70 hover:text-[#CF4B00] flex items-center gap-1 cursor-pointer font-medium"
                     >
                       {copiedField === 'email' ? (
                         <>
-                          <Check className="h-3.5 w-3.5 text-emerald-600" />
-                          <span className="text-emerald-600 font-semibold">COPIED</span>
+                          <Check className="h-3.5 w-3.5 text-[#CF4B00]" />
+                          <span className="text-[#CF4B00] font-bold">COPIED</span>
                         </>
                       ) : (
                         <>
@@ -198,7 +232,7 @@ export const ContactPage: React.FC = () => {
                   </div>
                   <a
                     href={`mailto:${siteData.siteInfo.contactEmail}`}
-                    className="font-heading text-lg font-bold text-[#090D12] hover:text-[#0284C7] transition-colors"
+                    className="font-heading text-lg font-bold text-[#0F172A] hover:text-[#CF4B00] transition-colors"
                   >
                     {siteData.siteInfo.contactEmail}
                   </a>
@@ -207,33 +241,33 @@ export const ContactPage: React.FC = () => {
             </FadeUp>
 
             <FadeUp delay={0.2}>
-              <div className="rounded-[2px] border border-[#E2E8F0] bg-[#F8FAFC] p-6 shadow-xs">
+              <div className="rounded-[2px] border border-[#85b5cd] bg-[#9CC6DB] p-6 shadow-xs">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="font-mono text-xs text-[#0DA5F0] font-bold">CHAPTER HEADQUARTERS</span>
+                  <span className="font-mono text-xs text-[#CF4B00] font-bold">CHAPTER HEADQUARTERS</span>
                   <a
                     href="https://www.google.com/maps?q=16.462717,80.506813"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs font-mono text-[#64748B] hover:text-[#0DA5F0] flex items-center gap-1 font-semibold"
+                    className="text-xs font-mono text-[#0F172A]/80 hover:text-[#CF4B00] flex items-center gap-1 font-semibold"
                   >
                     <ExternalLink className="h-3.5 w-3.5" />
                     <span>MAPS</span>
                   </a>
                 </div>
-                <h4 className="font-heading text-base font-bold text-[#090D12]">
+                <h4 className="font-heading text-base font-bold text-[#0F172A]">
                   {siteData.siteInfo.university}
                 </h4>
-                <p className="mt-1 text-xs text-[#64748B] leading-relaxed">
+                <p className="mt-1 text-xs text-[#0F172A]/80 leading-relaxed font-medium">
                   Neerukonda, Mangalagiri Mandal, Guntur District, Andhra Pradesh 522502
                 </p>
-                <div className="mt-3 font-mono text-xs text-[#94A3B8]">
+                <div className="mt-3 font-mono text-xs text-[#0F172A]/70 font-semibold">
                   {siteData.siteCoordinates.display}
                 </div>
               </div>
             </FadeUp>
 
             <FadeUp delay={0.3}>
-              <div className="relative aspect-video w-full overflow-hidden rounded-[2px] border border-[#E2E8F0] bg-[#F8FAFC] shadow-sm">
+              <div className="relative aspect-video w-full overflow-hidden rounded-[2px] border border-[#85b5cd] bg-[#9CC6DB] shadow-sm">
                 <iframe
                   title="HackShastra Location Map"
                   src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3826.663177699927!2d80.50462431486358!3d16.46271708863756!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a35f253b87d44b3%3A0x591c2967f32d4198!2sSRM%20University%20AP!5e0!3m2!1sen!2sin!4v1645000000000!5m2!1sen!2sin"
@@ -250,16 +284,16 @@ export const ContactPage: React.FC = () => {
           {/* Right Form Panel */}
           <div className="lg:col-span-7">
             <FadeUp delay={0.2}>
-              <div className="rounded-[2px] border border-[#E2E8F0] bg-[#FFFFFF] p-8 md:p-10 shadow-sm">
+              <div className="rounded-[2px] border border-[#85b5cd] bg-[#9CC6DB] p-8 md:p-10 shadow-sm">
                 {submitted ? (
                   <div className="text-center py-12">
-                    <div className="h-12 w-12 rounded-full bg-[#0DA5F0]/10 border border-[#0DA5F0] text-[#0DA5F0] flex items-center justify-center mx-auto mb-4">
+                    <div className="h-12 w-12 rounded-full bg-[#CF4B00]/10 border border-[#CF4B00] text-[#CF4B00] flex items-center justify-center mx-auto mb-4">
                       <Check className="h-6 w-6" />
                     </div>
-                    <h3 className="font-heading text-2xl font-bold text-[#090D12]">
+                    <h3 className="font-heading text-2xl font-bold text-[#0F172A]">
                       Verified Message Sent!
                     </h3>
-                    <p className="mt-2 text-sm text-[#64748B] max-w-md mx-auto">
+                    <p className="mt-2 text-sm text-[#0F172A]/80 max-w-md mx-auto font-medium">
                       Thank you for reaching out to HackShastra SRM-AP. Your verified message was delivered to our leadership desk.
                     </p>
                     <Button
@@ -273,40 +307,62 @@ export const ContactPage: React.FC = () => {
                   </div>
                 ) : (
                   <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-3 mb-4">
-                      <div className="font-mono text-xs text-[#0DA5F0] font-bold uppercase tracking-wider">
+                    <div className="flex items-center justify-between border-b border-[#85b5cd] pb-3 mb-4">
+                      <div className="font-mono text-xs text-[#CF4B00] font-black uppercase tracking-wider">
                         [ VERIFIED DISPATCH PORTAL ]
                       </div>
                       <div className="flex items-center gap-1.5 text-xs font-mono">
                         {isEmailVerified ? (
-                          <span className="inline-flex items-center gap-1 text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 font-semibold">
+                          <span className="inline-flex items-center gap-1 text-[#CF4B00] bg-[#FCF6D9] px-2 py-0.5 rounded border border-[#CF4B00] font-bold">
                             <ShieldCheck className="h-3.5 w-3.5" /> OTP VERIFIED
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 text-[#64748B] bg-[#F1F5F9] px-2 py-0.5 rounded border border-[#E2E8F0]">
+                          <span className="inline-flex items-center gap-1 text-[#0F172A]/70 bg-[#FCF6D9] px-2 py-0.5 rounded border border-[#85b5cd] font-semibold">
                             <Lock className="h-3 w-3" /> VERIFICATION REQUIRED
                           </span>
                         )}
                       </div>
                     </div>
 
-                    {errorMessage && (
-                      <div className="p-3 rounded-[2px] bg-red-50 border border-red-200 text-red-700 text-xs font-mono flex items-center gap-2">
-                        <AlertCircle className="h-4 w-4 shrink-0" />
+                    {emailChangedHalfway && (
+                      <div className="p-4 rounded-[2px] bg-amber-100 border border-amber-400 text-amber-950 font-mono text-xs space-y-2 font-semibold shadow-sm">
+                        <div className="flex items-center gap-2 text-[#CF4B00] font-black">
+                          <AlertCircle className="h-4 w-4 shrink-0 text-[#CF4B00]" />
+                          <span>SECURITY ALERT: EMAIL ADDRESS CHANGED HALFWAY</span>
+                        </div>
+                        <p className="text-[11px] leading-relaxed">
+                          You modified your email address after initiating verification. To protect data integrity, your security session cache was destroyed. Please refresh the page and try again.
+                        </p>
+                        <Button
+                          type="button"
+                          variant="primary"
+                          size="sm"
+                          onClick={() => window.location.reload()}
+                          className="font-mono text-xs mt-1 cursor-pointer gap-1"
+                        >
+                          <RefreshCw className="h-3.5 w-3.5" />
+                          <span>REFRESH PAGE & TRY AGAIN</span>
+                        </Button>
+                      </div>
+                    )}
+
+                    {errorMessage && !emailChangedHalfway && (
+                      <div className="p-3 rounded-[2px] bg-red-100 border border-red-300 text-red-900 text-xs font-mono flex items-center gap-2 font-semibold">
+                        <AlertCircle className="h-4 w-4 shrink-0 text-red-600" />
                         <span>{errorMessage}</span>
                       </div>
                     )}
 
                     {statusMessage && (
-                      <div className="p-3 rounded-[2px] bg-blue-50 border border-blue-200 text-[#0284C7] text-xs font-mono flex items-center gap-2">
-                        <Check className="h-4 w-4 shrink-0 text-emerald-600" />
+                      <div className="p-3 rounded-[2px] bg-[#FCF6D9] border border-[#CF4B00] text-[#CF4B00] text-xs font-mono flex items-center gap-2 font-bold">
+                        <Check className="h-4 w-4 shrink-0 text-[#CF4B00]" />
                         <span>{statusMessage}</span>
                       </div>
                     )}
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                       <div className="space-y-2">
-                        <label className="font-mono text-xs text-[#334155] block font-semibold uppercase">
+                        <label className="font-mono text-xs text-[#0F172A] block font-bold uppercase">
                           Full Name *
                         </label>
                         <input
@@ -316,17 +372,17 @@ export const ContactPage: React.FC = () => {
                           value={formData.name}
                           onChange={handleChange}
                           placeholder="John Doe"
-                          className="w-full rounded-[2px] border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-2.5 text-sm text-[#090D12] placeholder-[#94A3B8] focus:border-[#0DA5F0] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#0DA5F0]/20 focus:outline-none transition-all"
+                          className="w-full rounded-[2px] border border-[#85b5cd] bg-[#FCF6D9] px-4 py-2.5 text-sm text-[#0F172A] placeholder-[#0F172A]/50 focus:border-[#CF4B00] focus:bg-[#FCF6D9] focus:ring-2 focus:ring-[#CF4B00]/20 focus:outline-none transition-all font-medium"
                         />
                       </div>
 
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
-                          <label className="font-mono text-xs text-[#334155] block font-semibold uppercase">
+                          <label className="font-mono text-xs text-[#0F172A] block font-bold uppercase">
                             Your Email *
                           </label>
                           {isEmailVerified && (
-                            <span className="text-[10px] font-mono text-emerald-600 font-bold">✓ VERIFIED</span>
+                            <span className="text-[10px] font-mono text-[#CF4B00] font-bold">✓ VERIFIED</span>
                           )}
                         </div>
                         <input
@@ -336,25 +392,25 @@ export const ContactPage: React.FC = () => {
                           value={formData.email}
                           onChange={handleChange}
                           placeholder="john@example.com"
-                          className="w-full rounded-[2px] border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-2.5 text-sm text-[#090D12] placeholder-[#94A3B8] focus:border-[#0DA5F0] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#0DA5F0]/20 focus:outline-none transition-all"
+                          className="w-full rounded-[2px] border border-[#85b5cd] bg-[#FCF6D9] px-4 py-2.5 text-sm text-[#0F172A] placeholder-[#0F172A]/50 focus:border-[#CF4B00] focus:bg-[#FCF6D9] focus:ring-2 focus:ring-[#CF4B00]/20 focus:outline-none transition-all font-medium"
                         />
                       </div>
                     </div>
 
                     {/* OTP Verification Box */}
                     {!isEmailVerified && (
-                      <div className="rounded-[2px] border border-[#0DA5F0]/40 bg-[#0DA5F0]/5 p-4 space-y-3">
+                      <div className="rounded-[2px] border border-[#CF4B00] bg-[#FCF6D9] p-4 space-y-3 shadow-xs">
                         <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-1.5 font-mono text-xs text-[#090D12] font-semibold">
-                            <KeyRound className="h-4 w-4 text-[#0DA5F0]" />
+                          <div className="flex items-center gap-1.5 font-mono text-xs text-[#0F172A] font-bold">
+                            <KeyRound className="h-4 w-4 text-[#CF4B00]" />
                             <span>Email Security Verification</span>
                           </div>
-                          <span className="text-[10px] font-mono text-[#64748B]">Step 1 of 2</span>
+                          <span className="text-[10px] font-mono text-[#0F172A]/70 font-semibold">Step 1 of 2</span>
                         </div>
 
                         {!otpSent ? (
                           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-1">
-                            <p className="text-xs text-[#475569]">
+                            <p className="text-xs text-[#0F172A]/80 font-medium">
                               Click to receive a 6-digit OTP code to verify your identity.
                             </p>
                             <Button
@@ -371,6 +427,12 @@ export const ContactPage: React.FC = () => {
                           </div>
                         ) : (
                           <div className="space-y-3 pt-1">
+                            {activeOtp && (
+                              <div className="p-2 rounded-[2px] bg-[#9CC6DB]/40 border border-[#85b5cd] text-[#0F172A] font-mono text-xs flex items-center justify-between font-bold">
+                                <span>VERIFICATION CODE DISPATCHED:</span>
+                                <span className="px-2 py-0.5 rounded bg-[#CF4B00] text-white tracking-widest">{activeOtp}</span>
+                              </div>
+                            )}
                             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                               <input
                                 type="text"
@@ -378,7 +440,7 @@ export const ContactPage: React.FC = () => {
                                 value={otpCode}
                                 onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
                                 placeholder="Enter 6-digit OTP"
-                                className="w-full sm:w-48 text-center tracking-widest font-mono text-base font-bold rounded-[2px] border border-[#CBD5E1] bg-[#FFFFFF] px-3 py-2 text-[#090D12] focus:border-[#0DA5F0] focus:ring-2 focus:ring-[#0DA5F0]/20 focus:outline-none"
+                                className="w-full sm:w-48 text-center tracking-widest font-mono text-base font-bold rounded-[2px] border border-[#CF4B00] bg-[#FCF6D9] px-3 py-2 text-[#0F172A] focus:border-[#CF4B00] focus:ring-2 focus:ring-[#CF4B00]/20 focus:outline-none"
                               />
                               <Button
                                 type="button"
@@ -409,7 +471,7 @@ export const ContactPage: React.FC = () => {
                     )}
 
                     <div className="space-y-2">
-                      <label className="font-mono text-xs text-[#334155] block font-semibold uppercase">
+                      <label className="font-mono text-xs text-[#0F172A] block font-bold uppercase">
                         Subject *
                       </label>
                       <input
@@ -419,12 +481,12 @@ export const ContactPage: React.FC = () => {
                         value={formData.subject}
                         onChange={handleChange}
                         placeholder="Hackathon Inquiry / Partnership / Query"
-                        className="w-full rounded-[2px] border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-2.5 text-sm text-[#090D12] placeholder-[#94A3B8] focus:border-[#0DA5F0] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#0DA5F0]/20 focus:outline-none transition-all"
+                        className="w-full rounded-[2px] border border-[#85b5cd] bg-[#FCF6D9] px-4 py-2.5 text-sm text-[#0F172A] placeholder-[#0F172A]/50 focus:border-[#CF4B00] focus:bg-[#FCF6D9] focus:ring-2 focus:ring-[#CF4B00]/20 focus:outline-none transition-all font-medium"
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <label className="font-mono text-xs text-[#334155] block font-semibold uppercase">
+                      <label className="font-mono text-xs text-[#0F172A] block font-bold uppercase">
                         Message *
                       </label>
                       <textarea
@@ -434,13 +496,13 @@ export const ContactPage: React.FC = () => {
                         value={formData.message}
                         onChange={handleChange}
                         placeholder="Type your message here..."
-                        className="w-full rounded-[2px] border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-2.5 text-sm text-[#090D12] placeholder-[#94A3B8] focus:border-[#0DA5F0] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#0DA5F0]/20 focus:outline-none transition-all"
+                        className="w-full rounded-[2px] border border-[#85b5cd] bg-[#FCF6D9] px-4 py-2.5 text-sm text-[#0F172A] placeholder-[#0F172A]/50 focus:border-[#CF4B00] focus:bg-[#FCF6D9] focus:ring-2 focus:ring-[#CF4B00]/20 focus:outline-none transition-all font-medium"
                       />
                     </div>
 
                     <Button
                       type="submit"
-                      variant={isEmailVerified ? 'gradient' : 'secondary'}
+                      variant={isEmailVerified ? 'primary' : 'secondary'}
                       size="lg"
                       loading={isSubmitting}
                       disabled={!isEmailVerified}
@@ -453,7 +515,7 @@ export const ContactPage: React.FC = () => {
                         </>
                       ) : (
                         <>
-                          <Lock className="h-4 w-4 text-[#64748B]" />
+                          <Lock className="h-4 w-4 text-[#0F172A]/60" />
                           <span>UNLOCK DISPATCH BY VERIFYING OTP ABOVE</span>
                         </>
                       )}

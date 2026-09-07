@@ -63,10 +63,10 @@ export const TeamCard: React.FC<TeamCardProps> = React.memo(({
         rotateY,
         transformStyle: 'preserve-3d',
       }}
-      className="group relative h-full rounded-[2px] border border-[#E2E8F0] bg-[#FFFFFF] p-4 transition-all duration-300 hover:border-[#0DA5F0] hover:shadow-[0_8px_30px_rgba(13,165,240,0.12)] flex flex-col justify-between shadow-sm"
+      className="group relative h-full rounded-[2px] border border-[#85b5cd] bg-[#9CC6DB] p-4 transition-all duration-300 hover:border-[#CF4B00] hover:shadow-[0_8px_30px_rgba(207,75,0,0.15)] flex flex-col justify-between shadow-sm"
     >
       <div>
-        <div className="relative aspect-square w-full overflow-hidden rounded-[2px] bg-[#F8FAFC] border border-[#E2E8F0] mb-4">
+        <div className="relative aspect-square w-full overflow-hidden rounded-[2px] bg-[#FCF6D9] border border-[#85b5cd] mb-4">
           <img
             src={resolvedImage}
             alt={name}
@@ -76,36 +76,36 @@ export const TeamCard: React.FC<TeamCardProps> = React.memo(({
               (e.target as HTMLImageElement).src = '/logo.svg';
             }}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#090D12]/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+          <div className="absolute inset-0 bg-[#0F172A]/30 backdrop-blur-[1px] opacity-0 group-hover:opacity-100 transition-opacity" />
           
           {year && (
             <div className="absolute top-2 right-2">
-              <Badge variant="muted" className="text-[10px] bg-[#FFFFFF]/90 backdrop-blur-sm">
+              <Badge variant="muted" className="text-[10px] bg-[#FCF6D9]/90 backdrop-blur-sm">
                 {year}
               </Badge>
             </div>
           )}
         </div>
 
-        <h3 className="font-heading text-lg font-bold text-[#090D12] group-hover:text-[#0284C7] transition-colors leading-tight">
+        <h3 className="font-heading text-lg font-bold text-[#0F172A] group-hover:text-[#CF4B00] transition-colors leading-tight">
           {name}
         </h3>
-        <p className="font-mono text-xs text-[#0DA5F0] uppercase tracking-wider mt-1 font-semibold">
+        <p className="font-mono text-xs text-[#CF4B00] uppercase tracking-wider mt-1 font-bold">
           {role}
         </p>
-        <p className="text-xs text-[#64748B] mt-0.5">
+        <p className="text-xs text-[#0F172A]/80 mt-0.5 font-medium">
           {department}
         </p>
       </div>
 
-      <div className="mt-4 pt-3 border-t border-[#E2E8F0] flex items-center gap-3">
+      <div className="mt-4 pt-3 border-t border-[#85b5cd] flex items-center gap-3">
         {linkedin && (
           <a
             href={linkedin}
             target="_blank"
             rel="noopener noreferrer"
             aria-label={`${name} LinkedIn`}
-            className="text-[#64748B] hover:text-[#0DA5F0] transition-colors"
+            className="text-[#0F172A]/70 hover:text-[#CF4B00] transition-colors"
           >
             <Linkedin className="h-4 w-4" />
           </a>
@@ -116,7 +116,7 @@ export const TeamCard: React.FC<TeamCardProps> = React.memo(({
             target="_blank"
             rel="noopener noreferrer"
             aria-label={`${name} GitHub`}
-            className="text-[#64748B] hover:text-[#0DA5F0] transition-colors"
+            className="text-[#0F172A]/70 hover:text-[#CF4B00] transition-colors"
           >
             <Github className="h-4 w-4" />
           </a>
@@ -127,7 +127,7 @@ export const TeamCard: React.FC<TeamCardProps> = React.memo(({
             target="_blank"
             rel="noopener noreferrer"
             aria-label={`${name} Instagram`}
-            className="text-[#64748B] hover:text-[#0DA5F0] transition-colors"
+            className="text-[#0F172A]/70 hover:text-[#CF4B00] transition-colors"
           >
             <Instagram className="h-4 w-4" />
           </a>

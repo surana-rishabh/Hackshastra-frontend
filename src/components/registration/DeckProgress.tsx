@@ -16,7 +16,7 @@ export const DeckProgress: React.FC<DeckProgressProps> = ({
   currentCard,
   totalCards,
   completedCards,
-  activeAccent = '#0DA5F0',
+  activeAccent = '#1789E5',
   onSelectCard,
   className,
 }) => {

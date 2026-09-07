@@ -25,7 +25,7 @@ export const DeckControls: React.FC<DeckControlsProps> = ({
   isLastCard,
   isTransitioning,
   isSubmitting = false,
-  activeAccent = '#0DA5F0',
+  activeAccent = '#1789E5',
   onPrev,
   onNext,
   onSubmit,
