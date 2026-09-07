@@ -39,3 +39,5 @@ Thumbs.db
 # Build artifacts and temp
 *.tsbuildinfo
 .turbo
+.vercel
+.env*
