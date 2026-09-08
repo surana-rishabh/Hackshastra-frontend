@@ -1,8 +1,7 @@
 import * as React from 'react';
 import { motion } from 'motion/react';
 import { CheckCircle2, Calendar, Clock, MapPin, ArrowRight, Share2, Sparkles, MailCheck, Shield, Zap, QrCode, Download, FileDown, Mail, Loader2 } from 'lucide-react';
-import { toPng, toJpeg } from 'html-to-image';
-import jsPDF from 'jspdf';
+
 import { RegistrationFormData } from '@/hooks/useRegistrationForm';
 import { POKEMON_OPTIONS } from '@/data/registration/beyondTheScreen';
 import { getImageUrl } from '@/lib/assets';
@@ -160,6 +159,7 @@ export const RegistrationSuccess: React.FC<RegistrationSuccessProps> = ({
   const generateCardPng = async (pixelRatio = 2.0): Promise<string | null> => {
     if (!cardElementRef.current) return null;
     try {
+      const { toPng } = await import('html-to-image');
       const dataUrl = await toPng(cardElementRef.current, {
         pixelRatio,
         cacheBust: true,
@@ -172,11 +172,11 @@ export const RegistrationSuccess: React.FC<RegistrationSuccessProps> = ({
     }
   };
 
-  // Helper to generate ultra-lightweight card image for email pass dispatch (~80KB - 140KB)
-  // Crucial for eliminating Vercel 4.5MB payload limit (Status code 413)
-  const generateCardImageForEmail = async (): Promise<string | null> => {
+  // Helper to generate card image for client-side PDF pass download
+  const generateCardImageForPdf = async (): Promise<string | null> => {
     if (!cardElementRef.current) return null;
     try {
+      const { toJpeg } = await import('html-to-image');
       const dataUrl = await toJpeg(cardElementRef.current, {
         quality: 0.8,
         canvasWidth: 500,
@@ -194,7 +194,8 @@ export const RegistrationSuccess: React.FC<RegistrationSuccessProps> = ({
   // Helper to generate styled single-page PDF pass with embedded card graphic & QR details
   const generateCardPdf = async (cardDataUrl?: string): Promise<string | null> => {
     try {
-      const imgUrl = cardDataUrl || (await generateCardImageForEmail());
+      const { default: jsPDF } = await import('jspdf');
+      const imgUrl = cardDataUrl || (await generateCardImageForPdf());
 
       const pdf = new jsPDF({
         orientation: 'portrait',
