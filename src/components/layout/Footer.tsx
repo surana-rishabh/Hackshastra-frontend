@@ -29,7 +29,7 @@ export const Footer: React.FC = () => {
                 </span>
               </div>
               <p className="text-sm text-[#0F172A]/90 leading-relaxed max-w-md font-body font-medium">
-                India's premier student technical and engineering chapter. Empowering builders, researchers, and innovators at SRM University-AP to construct the next era of technology.
+                ...India's premier student technical and engineering chapter. Empowering builders, researchers, and innovators at SRM University-AP to construct the next era of technology.
               </p>
             </div>
 

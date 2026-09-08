@@ -173,7 +173,7 @@ export const Navbar: React.FC = () => {
             </Link>
 
             <div className="flex items-center justify-between text-xs font-mono text-[#0F172A]/80 font-semibold">
-              <span>SRM UNIVERSITY-AP</span>
+              <span>SRM UNIVERSITY  -  AP</span>
               <span>{siteData.siteCoordinates.display}</span>
             </div>
           </div>
