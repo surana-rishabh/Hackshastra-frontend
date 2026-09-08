@@ -109,7 +109,12 @@ export const BeyondTheScreenRegister: React.FC = () => {
         throw new Error(res.message || 'Registration failed to complete');
       }
     } catch (err: any) {
-      setSubmissionError(err.message || 'Registration could not be completed. Please verify your details.');
+      const errMsg = err.message || 'Registration could not be completed. Please verify your details.';
+      if (errMsg.toLowerCase().includes('already registered')) {
+        setSubmissionError('You have already registered for this event with this email address. Your trainer pass is confirmed!');
+      } else {
+        setSubmissionError(errMsg);
+      }
     } finally {
       setIsSubmitting(false);
     }

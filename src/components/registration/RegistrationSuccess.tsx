@@ -296,36 +296,27 @@ export const RegistrationSuccess: React.FC<RegistrationSuccessProps> = ({
       setIsEmailing(true);
       if (!silent) setEmailStatus('sending');
 
-      // Wait a tick for fonts/canvas if needed
-      await new Promise((r) => setTimeout(r, 300));
-
-      let cardData: string | null = null;
-      let pdfData: string | null = null;
-
-      try {
-        cardData = await generateCardImageForEmail();
-        pdfData = await generateCardPdf(cardData || undefined);
-      } catch (genErr) {
-        console.warn('Local canvas pass rendering omitted, relying on high-res server pass:', genErr);
-      }
-
-      await api.post('/api/registrations/send-pass', {
+      // Send lightweight metadata payload - backend handles full server-side pass generation & dispatch
+      const res = await api.post('/api/registrations/send-pass', {
         email: formData.email,
+        registrationId: registrationResult?.id || undefined,
         fullName: formData.fullName,
         eventTitle: 'Beyond the Screen',
         passId: entryId,
         pokemonName: selectedPokemon.name,
-        imageDataUrl: cardData || undefined,
-        pdfDataUrl: pdfData || undefined,
       });
 
-      setEmailStatus('sent');
-      setEmailMessage(`Official Trainer Pass dispatched to ${formData.email}!`);
+      if (res.success) {
+        setEmailStatus('sent');
+        setEmailMessage(`Official Trainer Pass dispatched to ${formData.email}!`);
+      } else {
+        setEmailStatus('failed');
+        setEmailMessage(res.message || `Failed to deliver pass to ${formData.email}. Please use the download buttons below.`);
+      }
     } catch (err: any) {
-      console.warn('Pass email edge dispatch notice:', err);
-      // Server-side registration service already dispatches pass email automatically upon verification
-      setEmailStatus('sent');
-      setEmailMessage(`Your Trainer Pass is confirmed and sent to ${formData.email}! You can also download your card below.`);
+      console.error('Pass email dispatch error:', err);
+      setEmailStatus('failed');
+      setEmailMessage(err.message || `Could not deliver pass email. You can save your PNG card and PDF pass directly below.`);
     } finally {
       setIsEmailing(false);
     }

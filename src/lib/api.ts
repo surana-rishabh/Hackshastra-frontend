@@ -75,7 +75,22 @@ async function request<T = any>(endpoint: string, options: RequestInit = {}): Pr
       };
     }
   } catch (netErr: any) {
-    console.warn(`[API Server Call Failed, Fallback to In-Memory DB] ${endpoint}:`, netErr.message);
+    const isOffline = typeof navigator !== 'undefined' && !navigator.onLine;
+    console.error(`[API Network Error] ${endpoint}:`, netErr.message || netErr);
+
+    // If calling send-pass, never silently succeed into in-memory fallback on network/edge failure
+    if (endpoint === '/api/registrations/send-pass') {
+      return {
+        success: false,
+        message: netErr.message?.includes('413')
+          ? 'Pass payload too large for network transmission (HTTP 413).'
+          : `Network error reaching mail server: ${netErr.message || 'Check connection'}`,
+      };
+    }
+
+    if (!isOffline) {
+      console.warn(`[API Server Call Failed] ${endpoint}:`, netErr.message);
+    }
   }
 
   // Fallback to local Database Store if backend server is unreachable
