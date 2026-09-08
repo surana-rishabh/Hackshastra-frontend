@@ -75,9 +75,11 @@ export const ContactPage: React.FC = () => {
 
     if (!cleanEmail || !emailRegex.test(cleanEmail)) {
       setErrorMessage('Please enter a valid email address first.');
+      console.warn('[Contact Form OTP] Invalid email format:', cleanEmail);
       return;
     }
 
+    console.log(`%c[Contact Form OTP] Requesting OTP for ${cleanEmail}...`, 'color: #f59e0b; font-weight: bold;');
     setIsSendingOtp(true);
     setErrorMessage(null);
     setStatusMessage(null);
@@ -86,6 +88,7 @@ export const ContactPage: React.FC = () => {
     try {
       const res = await api.post('/api/contact/otp', { email: cleanEmail });
       if (res.success) {
+        console.log(`%c[Contact Form OTP] ✅ OTP dispatched to ${cleanEmail}`, 'color: #10b981; font-weight: bold;', res);
         setOtpSent(true);
         setInitialOtpEmail(cleanEmail);
         setOtpCooldown(45);
@@ -97,6 +100,7 @@ export const ContactPage: React.FC = () => {
         throw new Error(res.message || 'Failed to send verification code.');
       }
     } catch (err: any) {
+      console.error('[Contact Form OTP] ❌ Request failed:', err);
       setErrorMessage(err.message || 'Failed to send OTP. Please try again.');
     } finally {
       setIsSendingOtp(false);
@@ -107,9 +111,11 @@ export const ContactPage: React.FC = () => {
   const handleVerifyOtp = async () => {
     if (!otpCode || otpCode.trim().length !== 6) {
       setErrorMessage('Please enter the full 6-digit OTP code.');
+      console.warn('[Contact Form OTP] Incomplete code entered:', otpCode);
       return;
     }
 
+    console.log(`%c[Contact Form OTP] Verifying OTP for ${formData.email} (Code: ${otpCode.trim()})...`, 'color: #3b82f6; font-weight: bold;');
     setIsVerifyingOtp(true);
     setErrorMessage(null);
 
@@ -120,6 +126,7 @@ export const ContactPage: React.FC = () => {
       });
 
       if (res.success && res.data?.verificationToken) {
+        console.log(`%c[Contact Form OTP] ✅ Verified! Token:`, 'color: #10b981; font-weight: bold;', res.data.verificationToken);
         setIsEmailVerified(true);
         setVerifiedEmail(formData.email.trim().toLowerCase());
         setVerificationToken(res.data.verificationToken);
@@ -128,9 +135,11 @@ export const ContactPage: React.FC = () => {
       } else {
         const attempts = failedAttempts + 1;
         setFailedAttempts(attempts);
+        console.warn(`[Contact Form OTP] ⚠️ Verification rejected. Attempt #${attempts}/3`, res);
 
         if (res.data?.attemptsExceeded || attempts >= 3) {
           // Destroy cache after 3 failed attempts
+          console.error('[Contact Form OTP] 🚨 3 failed attempts reached. Cache destroyed.');
           setOtpSent(false);
           setActiveOtp(null);
           setOtpCode('');
@@ -143,6 +152,7 @@ export const ContactPage: React.FC = () => {
         }
       }
     } catch (err: any) {
+      console.error('[Contact Form OTP] ❌ Verification error:', err);
       setErrorMessage(err.message || 'Failed to verify OTP.');
     } finally {
       setIsVerifyingOtp(false);
@@ -154,8 +164,15 @@ export const ContactPage: React.FC = () => {
 
     if (!isEmailVerified || !verificationToken) {
       setErrorMessage('Please verify your email with OTP before sending.');
+      console.warn('[Contact Form] Submit attempted without verified token.');
       return;
     }
+
+    console.log('%c[Contact Form] Submitting verified inquiry...', 'color: #3b82f6; font-weight: bold;', {
+      name: formData.name,
+      email: formData.email,
+      subject: formData.subject,
+    });
 
     setIsSubmitting(true);
     setErrorMessage(null);
@@ -170,6 +187,7 @@ export const ContactPage: React.FC = () => {
       });
 
       if (result.success) {
+        console.log('%c[Contact Form] ✅ Message delivered to admin inbox!', 'color: #10b981; font-weight: bold;', result);
         setSubmitted(true);
         setStatusMessage('Your message was sent directly to hssc2025@srmap.edu.in. We will respond shortly!');
         setFormData({ name: '', email: '', subject: '', message: '' });
@@ -182,6 +200,7 @@ export const ContactPage: React.FC = () => {
         throw new Error(result.message || 'Failed to submit message');
       }
     } catch (err: any) {
+      console.error('[Contact Form] ❌ Submission failed:', err);
       setErrorMessage(err.message || 'Error submitting message. Please try again.');
     } finally {
       setIsSubmitting(false);

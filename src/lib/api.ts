@@ -40,6 +40,8 @@ function resolveUrl(endpoint: string): string {
 
 async function request<T = any>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
   const url = resolveUrl(endpoint);
+  const method = options.method || 'GET';
+  const startTime = performance.now();
   
   const token = authStorage.getToken();
   const headers: Record<string, string> = {
@@ -53,12 +55,27 @@ async function request<T = any>(endpoint: string, options: RequestInit = {}): Pr
     headers['Authorization'] = `Bearer ${token}`;
   }
 
+  let parsedBody: any = null;
+  let formattedSize = '0 B';
+  let bytes = 0;
   if (options.body) {
     const bodyStr = typeof options.body === 'string' ? options.body : JSON.stringify(options.body);
-    const bytes = new TextEncoder().encode(bodyStr).length;
-    const formattedSize = bytes < 1024 ? `${bytes} B` : `${(bytes / 1024).toFixed(2)} KB`;
-    console.log(`[API Request] ${options.method || 'GET'} ${endpoint} | Payload Size: ${formattedSize} (${bytes} bytes)`);
+    bytes = new TextEncoder().encode(bodyStr).length;
+    formattedSize = bytes < 1024 ? `${bytes} B` : `${(bytes / 1024).toFixed(2)} KB`;
+    try {
+      parsedBody = typeof options.body === 'string' ? JSON.parse(options.body) : options.body;
+    } catch {
+      parsedBody = options.body;
+    }
   }
+
+  console.groupCollapsed(`%c🌐 [API ${method}] ${endpoint} %c(${formattedSize})`, 'color: #3b82f6; font-weight: bold;', 'color: #9ca3af;');
+  console.log('🔗 Target URL:', url);
+  console.log('📤 Headers:', headers);
+  if (parsedBody) {
+    console.log('📦 Request Payload:', parsedBody);
+  }
+  console.groupEnd();
 
   // Attempt real network call to backend server first
   try {
@@ -68,12 +85,21 @@ async function request<T = any>(endpoint: string, options: RequestInit = {}): Pr
       credentials: 'omit',
     });
 
+    const elapsed = Math.round(performance.now() - startTime);
+
     const data = await res.json().catch(() => ({
       success: res.ok,
       message: res.statusText,
     }));
 
-    if (res.ok && data) {
+    if (res.ok) {
+      console.log(
+        `%c✅ [API Response ${res.status}] ${method} ${endpoint} %c(${elapsed}ms)`,
+        'color: #10b981; font-weight: bold;',
+        'color: #9ca3af;',
+        data
+      );
+
       // Also sync local in-memory DB for instant UI responsiveness
       if (options.method === 'POST' && options.body) {
         try {
@@ -95,21 +121,34 @@ async function request<T = any>(endpoint: string, options: RequestInit = {}): Pr
     }
 
     // If server responded with an error (e.g. 400 validation, 409 duplicate, 500), return real error to caller
-    if (!res.ok) {
-      const errorMsg =
-        data?.message ||
-        data?.error ||
-        (Array.isArray(data?.errors) ? data.errors.join(', ') : null) ||
-        `Request failed with status ${res.status}`;
-      return {
-        success: false,
-        message: errorMsg,
-        data: data?.data || data,
-      };
-    }
+    const errorMsg =
+      data?.message ||
+      data?.error ||
+      (Array.isArray(data?.errors) ? data.errors.join(', ') : null) ||
+      `Request failed with status ${res.status}`;
+
+    console.warn(
+      `%c⚠️ [API Error ${res.status}] ${method} ${endpoint} %c(${elapsed}ms): %c${errorMsg}`,
+      'color: #f59e0b; font-weight: bold;',
+      'color: #9ca3af;',
+      'color: #ef4444; font-weight: bold;',
+      data
+    );
+
+    return {
+      success: false,
+      message: errorMsg,
+      data: data?.data || data,
+    };
   } catch (netErr: any) {
+    const elapsed = Math.round(performance.now() - startTime);
     const isOffline = typeof navigator !== 'undefined' && !navigator.onLine;
-    console.error(`[API Network Error] ${endpoint}:`, netErr.message || netErr);
+    console.error(
+      `%c❌ [API Network Error] ${method} ${endpoint} %c(${elapsed}ms):`,
+      'color: #ef4444; font-weight: bold;',
+      'color: #9ca3af;',
+      netErr.message || netErr
+    );
 
     // If calling send-pass, never silently succeed into in-memory fallback on network/edge failure
     if (endpoint === '/api/registrations/send-pass') {

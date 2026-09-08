@@ -112,6 +112,7 @@ export const PokedexDevice: React.FC<PokedexDeviceProps> = ({
       // Detect if email was changed halfway through verification
       if (isOtpRequested || isEmailVerified) {
         if (value.trim().toLowerCase() !== initialOtpEmail.trim().toLowerCase()) {
+          console.warn(`[Pokédex Security] Email modified halfway (${initialOtpEmail} -> ${value}). Session cache destroyed.`);
           setEmailChangedHalfway(true);
           setIsEmailVerified(false);
           setIsOtpRequested(false);
@@ -130,10 +131,13 @@ export const PokedexDevice: React.FC<PokedexDeviceProps> = ({
     setOtpSuccessMessage(null);
     setEmailChangedHalfway(false);
 
+    console.log(`%c[Pokédex OTP] Initiating OTP request for ${emailVal}...`, 'color: #f59e0b; font-weight: bold;');
+
     if (!emailVal) {
       const msg = 'Please enter your SRM University-AP email address';
       setStepErrors((prev) => ({ ...prev, email: msg }));
       setOtpError(msg);
+      console.warn('[Pokédex OTP Validation Error]', msg);
       return;
     }
 
@@ -142,6 +146,7 @@ export const PokedexDevice: React.FC<PokedexDeviceProps> = ({
       const msg = 'Please enter a valid email format (e.g. your_name@srmap.edu.in)';
       setStepErrors((prev) => ({ ...prev, email: msg }));
       setOtpError(msg);
+      console.warn('[Pokédex OTP Validation Error]', msg);
       return;
     }
 
@@ -149,6 +154,7 @@ export const PokedexDevice: React.FC<PokedexDeviceProps> = ({
       const msg = 'Registration is exclusive to SRM University-AP students. Email must end with @srmap.edu.in';
       setStepErrors((prev) => ({ ...prev, email: msg }));
       setOtpError(msg);
+      console.warn('[Pokédex OTP Validation Error]', msg);
       return;
     }
 
@@ -168,6 +174,7 @@ export const PokedexDevice: React.FC<PokedexDeviceProps> = ({
       });
 
       if (res.success) {
+        console.log(`%c[Pokédex OTP] ✅ OTP successfully dispatched to ${emailVal}`, 'color: #10b981; font-weight: bold;', res);
         setIsOtpRequested(true);
         setInitialOtpEmail(emailVal);
         setResendCooldown(45);
@@ -177,7 +184,7 @@ export const PokedexDevice: React.FC<PokedexDeviceProps> = ({
         throw new Error(res.message || 'Failed to dispatch verification OTP');
       }
     } catch (err: any) {
-      console.error('OTP Request error:', err);
+      console.error('[Pokédex OTP] ❌ Request failed:', err);
       const msg = err.message || 'Unable to send OTP. Please check your network connection.';
       setOtpError(msg);
     } finally {
@@ -190,8 +197,11 @@ export const PokedexDevice: React.FC<PokedexDeviceProps> = ({
     setOtpError(null);
     const trimmedOtp = otpCode.trim();
 
+    console.log(`%c[Pokédex OTP] Verifying OTP for ${formData.email} (Code: ${trimmedOtp})...`, 'color: #3b82f6; font-weight: bold;');
+
     if (!trimmedOtp || trimmedOtp.length !== 6) {
       setOtpError('Please enter the complete 6-digit OTP code');
+      console.warn('[Pokédex OTP] Incomplete code provided:', trimmedOtp);
       return;
     }
 
@@ -203,6 +213,7 @@ export const PokedexDevice: React.FC<PokedexDeviceProps> = ({
       });
 
       if (res.success && res.data?.verified) {
+        console.log(`%c[Pokédex OTP] ✅ Verified successfully! Proof Token acquired:`, 'color: #10b981; font-weight: bold;', res.data?.verificationProofToken);
         setIsEmailVerified(true);
         setFailedAttempts(0);
         const token = res.data?.verificationProofToken || '';
@@ -216,9 +227,11 @@ export const PokedexDevice: React.FC<PokedexDeviceProps> = ({
       } else {
         const attempts = failedAttempts + 1;
         setFailedAttempts(attempts);
+        console.warn(`[Pokédex OTP] ⚠️ Verification rejected. Attempt #${attempts}/3`, res);
 
         if (res.data?.attemptsExceeded || attempts >= 3) {
           // Destroy session cache after 3 failed attempts
+          console.error('[Pokédex OTP] 🚨 3 failed attempts exceeded. Destroying session cache.');
           setIsOtpRequested(false);
           setOtpCode('');
           setIsEmailVerified(false);
@@ -229,7 +242,7 @@ export const PokedexDevice: React.FC<PokedexDeviceProps> = ({
         }
       }
     } catch (err: any) {
-      console.error('OTP Verify error:', err);
+      console.error('[Pokédex OTP] ❌ Verification error:', err);
       const msg = err.message || 'Invalid or expired OTP code. Please check and try again.';
       setOtpError(msg);
     } finally {
@@ -270,13 +283,18 @@ export const PokedexDevice: React.FC<PokedexDeviceProps> = ({
     }
 
     setStepErrors(errs);
-    return Object.keys(errs).length === 0;
+    const passed = Object.keys(errs).length === 0;
+    if (!passed) {
+      console.warn(`[Pokédex Step ${step} Validation Errors]`, errs);
+    }
+    return passed;
   };
 
   const handleNext = () => {
     if (validateCurrentStep(currentStep)) {
       setStepErrors({});
       if (currentStep < TOTAL_STEPS) {
+        console.log(`[Pokédex Navigation] Step ${currentStep} -> Step ${currentStep + 1}`);
         setDirection(1);
         setCurrentStep((prev) => prev + 1);
       }
@@ -286,6 +304,7 @@ export const PokedexDevice: React.FC<PokedexDeviceProps> = ({
   const handlePrev = () => {
     setStepErrors({});
     if (currentStep > 1) {
+      console.log(`[Pokédex Navigation] Step ${currentStep} -> Step ${currentStep - 1}`);
       setDirection(-1);
       setCurrentStep((prev) => prev - 1);
     }
@@ -293,6 +312,10 @@ export const PokedexDevice: React.FC<PokedexDeviceProps> = ({
 
   const handleFinalSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('[Pokédex Final Submit Triggered]', {
+      formData,
+      verificationProofToken: verificationProofToken ? 'PRESENT' : 'NONE',
+    });
     if (validateCurrentStep(currentStep)) {
       onSubmit(e, verificationProofToken);
     }

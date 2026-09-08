@@ -159,15 +159,17 @@ export const RegistrationSuccess: React.FC<RegistrationSuccessProps> = ({
   const generateCardPng = async (pixelRatio = 2.0): Promise<string | null> => {
     if (!cardElementRef.current) return null;
     try {
+      console.log(`%c[Trainer Card PNG] Generating card render (pixelRatio: ${pixelRatio})...`, 'color: #3b82f6; font-weight: bold;');
       const { toPng } = await import('html-to-image');
       const dataUrl = await toPng(cardElementRef.current, {
         pixelRatio,
         cacheBust: true,
         skipFonts: true,
       });
+      console.log(`%c[Trainer Card PNG] ✅ Generated successfully! Data length: ${dataUrl.length} chars`, 'color: #10b981;');
       return dataUrl;
     } catch (err) {
-      console.error('Failed to generate PNG from card element:', err);
+      console.error('[Trainer Card PNG] ❌ Failed to generate PNG from card element:', err);
       return null;
     }
   };
@@ -186,7 +188,7 @@ export const RegistrationSuccess: React.FC<RegistrationSuccessProps> = ({
       });
       return dataUrl;
     } catch (err) {
-      console.warn('toJpeg failed, fallback to toPng:', err);
+      console.warn('[Trainer Card PDF] toJpeg fallback to toPng:', err);
       return await generateCardPng(1.0);
     }
   };
@@ -194,6 +196,7 @@ export const RegistrationSuccess: React.FC<RegistrationSuccessProps> = ({
   // Helper to generate styled single-page PDF pass with embedded card graphic & QR details
   const generateCardPdf = async (cardDataUrl?: string): Promise<string | null> => {
     try {
+      console.log('%c[Trainer Pass PDF] Assembling A4 PDF document...', 'color: #3b82f6; font-weight: bold;');
       const { default: jsPDF } = await import('jspdf');
       const imgUrl = cardDataUrl || (await generateCardImageForPdf());
 
@@ -237,7 +240,7 @@ export const RegistrationSuccess: React.FC<RegistrationSuccessProps> = ({
           pdf.addImage(imgUrl, imgFormat, cardX, cardY, cardWidth, cardHeight, undefined, 'FAST');
           infoY = cardY + cardHeight + 6;
         } catch (e) {
-          console.warn('Could not embed card image in PDF:', e);
+          console.warn('[Trainer Pass PDF] Could not embed card image in PDF:', e);
         }
       }
 
@@ -281,9 +284,10 @@ export const RegistrationSuccess: React.FC<RegistrationSuccessProps> = ({
       pdf.setTextColor(100, 116, 139);
       pdf.text('HackShastra SRM-AP Chapter • Please present this ticket or QR card upon entry at CV 402', pageWidth / 2, pageHeight - 10, { align: 'center' });
 
+      console.log('%c[Trainer Pass PDF] ✅ PDF generated successfully!', 'color: #10b981;');
       return pdf.output('datauristring');
     } catch (err) {
-      console.error('Failed to generate PDF pass:', err);
+      console.error('[Trainer Pass PDF] ❌ Failed to generate PDF pass:', err);
       return null;
     }
   };
@@ -297,6 +301,8 @@ export const RegistrationSuccess: React.FC<RegistrationSuccessProps> = ({
       setIsEmailing(true);
       if (!silent) setEmailStatus('sending');
 
+      console.log(`%c[Pass Email] Dispatching pass #${entryId} to ${formData.email}...`, 'color: #f59e0b; font-weight: bold;');
+
       // Send lightweight metadata payload - backend handles full server-side pass generation & dispatch
       const res = await api.post('/api/registrations/send-pass', {
         email: formData.email,
@@ -308,14 +314,16 @@ export const RegistrationSuccess: React.FC<RegistrationSuccessProps> = ({
       });
 
       if (res.success) {
+        console.log(`%c[Pass Email] ✅ Email dispatched successfully to ${formData.email}`, 'color: #10b981; font-weight: bold;', res);
         setEmailStatus('sent');
         setEmailMessage(`Official Trainer Pass dispatched to ${formData.email}!`);
       } else {
+        console.warn(`[Pass Email] ⚠️ Delivery notice for ${formData.email}:`, res.message);
         setEmailStatus('failed');
         setEmailMessage(res.message || `Failed to deliver pass to ${formData.email}. Please use the download buttons below.`);
       }
     } catch (err: any) {
-      console.error('Pass email dispatch error:', err);
+      console.error('[Pass Email] ❌ Dispatch error:', err);
       setEmailStatus('failed');
       setEmailMessage(err.message || `Could not deliver pass email. You can save your PNG card and PDF pass directly below.`);
     } finally {
@@ -327,6 +335,7 @@ export const RegistrationSuccess: React.FC<RegistrationSuccessProps> = ({
   React.useEffect(() => {
     if (qrCodeDataUrl && !hasAutoDispatched.current && formData.email) {
       hasAutoDispatched.current = true;
+      console.log('[Pass Email] Auto-dispatching pass email upon QR completion...');
       // Slight timeout to let DOM render completely
       const timer = setTimeout(() => {
         handleEmailPass(true);
@@ -339,6 +348,7 @@ export const RegistrationSuccess: React.FC<RegistrationSuccessProps> = ({
   const handleDownloadPng = async () => {
     try {
       setIsDownloadingPng(true);
+      console.log('[Download] Initiating PNG Card download...');
       const pngDataUrl = await generateCardPng(2.5);
       if (!pngDataUrl) throw new Error('Could not generate PNG');
 
@@ -346,8 +356,9 @@ export const RegistrationSuccess: React.FC<RegistrationSuccessProps> = ({
       link.download = `${(formData.fullName || 'Trainer').replace(/\s+/g, '_')}_${selectedPokemon.name}_Card.png`;
       link.href = pngDataUrl;
       link.click();
+      console.log(`[Download] ✅ PNG card downloaded: ${link.download}`);
     } catch (err) {
-      console.error('Download PNG failed:', err);
+      console.error('[Download] ❌ Download PNG failed:', err);
       alert('Failed to download PNG. Please try again.');
     } finally {
       setIsDownloadingPng(false);
@@ -358,6 +369,7 @@ export const RegistrationSuccess: React.FC<RegistrationSuccessProps> = ({
   const handleDownloadPdf = async () => {
     try {
       setIsDownloadingPdf(true);
+      console.log('[Download] Initiating PDF Ticket download...');
       const pdfDataUrl = await generateCardPdf();
       if (!pdfDataUrl) throw new Error('Could not generate PDF');
 
@@ -365,8 +377,9 @@ export const RegistrationSuccess: React.FC<RegistrationSuccessProps> = ({
       link.download = `${(formData.fullName || 'Trainer').replace(/\s+/g, '_')}_Beyond_The_Screen_Pass.pdf`;
       link.href = pdfDataUrl;
       link.click();
+      console.log(`[Download] ✅ PDF pass downloaded: ${link.download}`);
     } catch (err) {
-      console.error('Download PDF failed:', err);
+      console.error('[Download] ❌ Download PDF failed:', err);
       alert('Failed to download PDF. Please try again.');
     } finally {
       setIsDownloadingPdf(false);

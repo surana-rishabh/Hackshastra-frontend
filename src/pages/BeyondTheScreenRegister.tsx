@@ -76,8 +76,16 @@ export const BeyondTheScreenRegister: React.FC = () => {
     e.preventDefault();
     setSubmissionError(null);
 
+    console.log('%c[Registration Protocol] Initiating submission...', 'color: #3b82f6; font-weight: bold;', {
+      trainer: formData.fullName,
+      email: formData.email,
+      starter: formData.favouritePokemon,
+      hasProofToken: Boolean(verificationProofToken),
+    });
+
     const isValid = validateAll(beyondTheScreenConfig);
     if (!isValid) {
+      console.warn('[Registration Protocol] Form validation failed. Missing required fields.');
       setSubmissionError('Please complete all required protocols highlighted in red to sync your Pokédex.');
       return;
     }
@@ -99,16 +107,21 @@ export const BeyondTheScreenRegister: React.FC = () => {
         otpVerified: true,
       };
 
+      console.log('[Registration Protocol] Transmitting payload to backend:', payload);
+
       const res = await api.post(`/api/events/${beyondTheScreenConfig.eventId}/register`, payload);
 
       if (res.success || res.data) {
-        setRegistrationResult(res.data?.registration || res.data || {});
+        const regRecord = res.data?.registration || res.data || {};
+        console.log('%c[Registration Protocol] 🎉 Registration successful!', 'color: #10b981; font-weight: bold;', regRecord);
+        setRegistrationResult(regRecord);
         setIsSubmitted(true);
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
         throw new Error(res.message || 'Registration failed to complete');
       }
     } catch (err: any) {
+      console.error('[Registration Protocol] ❌ Registration failed:', err);
       const errMsg = err.message || 'Registration could not be completed. Please verify your details.';
       if (errMsg.toLowerCase().includes('already registered')) {
         setSubmissionError('You have already registered for this event with this email address. Your trainer pass is confirmed!');
