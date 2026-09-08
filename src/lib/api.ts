@@ -28,6 +28,13 @@ async function request<T = any>(endpoint: string, options: RequestInit = {}): Pr
     headers['Authorization'] = `Bearer ${token}`;
   }
 
+  if (options.body) {
+    const bodyStr = typeof options.body === 'string' ? options.body : JSON.stringify(options.body);
+    const bytes = new TextEncoder().encode(bodyStr).length;
+    const formattedSize = bytes < 1024 ? `${bytes} B` : `${(bytes / 1024).toFixed(2)} KB`;
+    console.log(`[API Request] ${options.method || 'GET'} ${endpoint} | Payload Size: ${formattedSize} (${bytes} bytes)`);
+  }
+
   // Attempt real network call to backend server first
   try {
     const res = await fetch(url, {
