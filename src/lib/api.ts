@@ -23,7 +23,8 @@ async function request<T = any>(endpoint: string, options: RequestInit = {}): Pr
     ...(options.headers as Record<string, string> || {}),
   };
 
-  if (token) {
+  // Only attach Authorization header if targeting admin or authenticated routes
+  if (token && (endpoint.startsWith('/api/admin') || endpoint.startsWith('/api/auth'))) {
     headers['Authorization'] = `Bearer ${token}`;
   }
 
