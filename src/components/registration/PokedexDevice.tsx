@@ -167,7 +167,7 @@ export const PokedexDevice: React.FC<PokedexDeviceProps> = ({
         eventId: 'beyond-the-screen',
       });
 
-      if (res.success || res.data) {
+      if (res.success) {
         setIsOtpRequested(true);
         setInitialOtpEmail(emailVal);
         setResendCooldown(45);

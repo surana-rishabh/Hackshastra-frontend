@@ -13,8 +13,33 @@ const BASE_URL =
   import.meta.env.VITE_API_URL ||
   'https://hackshastra-backend.vercel.app';
 
+// Routes hosted as serverless functions on the frontend Vercel project
+const FRONTEND_SERVERLESS_PREFIXES = [
+  '/api/otp',
+  '/api/mail',
+  '/api/registrations/otp',
+  '/api/registrations/verify-otp',
+  '/api/registrations/send-pass',
+  '/api/contact/otp',
+  '/api/contact/verify',
+  '/api/contact/notify',
+];
+
+function resolveUrl(endpoint: string): string {
+  if (endpoint.startsWith('http://') || endpoint.startsWith('https://')) {
+    return endpoint;
+  }
+  const isServerless = FRONTEND_SERVERLESS_PREFIXES.some(
+    (prefix) => endpoint === prefix || endpoint.startsWith(`${prefix}/`) || endpoint.startsWith(`${prefix}?`)
+  );
+  if (isServerless) {
+    return endpoint; // Same-origin serverless call on frontend deployment
+  }
+  return `${BASE_URL}${endpoint}`; // Main backend (PostgreSQL database operations)
+}
+
 async function request<T = any>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
-  const url = endpoint.startsWith('http') ? endpoint : `${BASE_URL}${endpoint}`;
+  const url = resolveUrl(endpoint);
   
   const token = authStorage.getToken();
   const headers: Record<string, string> = {
